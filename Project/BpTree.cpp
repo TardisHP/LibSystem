@@ -25,7 +25,7 @@ BpTreeNode* BpTree::findLeaf(int k)
 }
 
 // ²åÈëÒ¶½Úµã
-void BpTree::insertToLeaf(int k, int v)
+void BpTree::insertToLeaf(int k, std::streampos v)
 {
     if (!root)
     {
@@ -131,16 +131,15 @@ void BpTree::splitNode(BpTreeNode* node)
         insertToNode(node->parent, node, newNode, midKey);
 }
 
-void BpTree::find(int k)
+std::streampos BpTree::findPos(int k)
 {
     BpTreeNode* p = findLeaf(k);
     for (int i = 0; i < p->keys.size(); i++)
     {
         if (k == p->keys[i])
         {
-            std::cout << p->values[i];
-            return;
+            return p->values[i];
         }
     }
-    //std::cout << "cant find\n";
+    return -1;
 }

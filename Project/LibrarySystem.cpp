@@ -3,42 +3,79 @@
 #include <fstream>
 
 #include "LibrarySystem.h"
+#include "Book.h"
+#include "Card.h"
+#include "Borrow.h"
 
 LibrarySystem::LibrarySystem()
 {
 	kvFile = "Dataset/kvlist.dat";
 	datasetFile = "Dataset/data.dat";
+	keyMax = 0;
 	createBpTreeFromFile();
 }
 
-void LibrarySystem::storeBook()
+void LibrarySystem::storeBook(Book& book)
 {
-	int k, v;
-	std::cin >> k >> v;
-	bpTree.insertToLeaf(k, v);
-	saveBpTreeToFile();
+	std::streampos v;
+	std::fstream finout;
+	finout.open(datasetFile, std::ios::in | std::ios::out | std::ios::binary);
+	if (finout.is_open())
+	{
+		finout.seekp(0, std::ios::end);
+		v = finout.tellp();
+		// std::cout << "Storing Book..." << std::endl;
+		book.book_id = ++keyMax;
+		finout.write((char*)&book, sizeof book);
+		finout.close();
+		bpTree.insertToLeaf(book.book_id, v);
+		saveBpTreeToFile();
+	}
 }
 
-void LibrarySystem::storeBooks()
+void LibrarySystem::storeBooks(std::vector<Book>& books)
 {
-	int k, v;
-	for (int i = 0; i < 999999; i++)
+	std::streampos v;
+	std::streampos offset = sizeof Book;
+	std::fstream finout;
+	finout.open(datasetFile, std::ios::in | std::ios::out | std::ios::binary); if (finout.is_open())
 	{
-		bpTree.insertToLeaf(i, i+1);
+		finout.seekp(0, std::ios::end);
+		for (auto book : books)
+		{
+			v = finout.tellp();
+			// std::cout << "Storing Book..." << std::endl;
+			book.book_id = ++keyMax;
+			finout.write((char*)&book, sizeof book);
+			bpTree.insertToLeaf(book.book_id, v);
+			finout.seekp(v + offset);
+		}
+		finout.close();
+		saveBpTreeToFile();
 	}
-	saveBpTreeToFile();
 }
 
 void LibrarySystem::show()
 {
-	BpTreeNode* p = bpTree.getHead();
-	while (p)
+	Book book;
+	std::fstream fin;
+	fin.open(datasetFile, std::ios::in | std::ios::binary);
+	if (fin.is_open())
 	{
-		for (int i = 0; i < p->keys.size(); i++)
+		BpTreeNode* p = bpTree.getHead();
+		while (p)
 		{
-			std::cout << p->keys[i] << " " << p->values[i] << std::endl;
+			for (int i = 0; i < p->keys.size(); i++)
+			{
+				fin.seekg(p->values[i]);
+				fin.read((char*)&book, sizeof book);
+				std::cout << book.book_id << " " << book.category << " " << book.title << " " << book.author << " " << book.publisher << " " << book.publish_year << " " << book.price << " " << " " << book.stock << std::endl;
+			}
+			p = p->next;
 		}
-		p = p->next;
+		if (fin.eof())
+			fin.clear();
+		fin.close();
 	}
 }
 
@@ -47,6 +84,30 @@ void LibrarySystem::clearKV()
 	std::fstream finout;
 	finout.open(kvFile, std::ios::out | std::ios::trunc | std::ios::binary);
 	finout.close();
+	finout.open(datasetFile, std::ios::out | std::ios::trunc | std::ios::binary);
+	finout.close();
+}
+
+void LibrarySystem::queryBook(int k)
+{
+	Book book;
+	std::streampos v = bpTree.findPos(k);
+	if (v == -1)
+	{
+		std::cout << "cant find" << std::endl;
+		return;
+	}
+	std::fstream fin;
+	fin.open(datasetFile, std::ios::in | std::ios::binary);
+	if (fin.is_open())
+	{
+		fin.seekg(v);
+		fin.read((char*)&book, sizeof book);
+		std::cout << book.book_id << " " << book.category << " " << book.title << " " << book.author << " " << book.publisher << " " << book.publish_year << " " << book.price << " " << " " << book.stock << std::endl;
+		if (fin.eof())
+			fin.clear();
+		fin.close();
+	}
 }
 
 void LibrarySystem::createBpTreeFromFile()
@@ -61,12 +122,13 @@ void LibrarySystem::createBpTreeFromFile()
 		while (fin.read((char*)&kv, sizeof kv))
 		{
 			bpTree.insertToLeaf(kv.k, kv.v);
+			keyMax = kv.k;
 		}
 		if (fin.eof())
 			fin.clear();
+		fin.close();
+		std::cout << "Build Done" << std::endl;
 	}
-	fin.close();
-	std::cout << "Build Done" << std::endl;
 }
 
 void LibrarySystem::saveBpTreeToFile()
@@ -90,6 +152,6 @@ void LibrarySystem::saveBpTreeToFile()
 			}
 			p = p->next;
 		}
+		fout.close();
 	}
-	fout.close();
 }
