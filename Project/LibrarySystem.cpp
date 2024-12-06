@@ -110,6 +110,43 @@ void LibrarySystem::queryBook(int k)
 	}
 }
 
+void LibrarySystem::queryBook(int k, int y)
+{
+	bool isFind = false;
+	Book book;
+	BpTreeNode* p = bpTree.getHead();
+	std::fstream fin;
+	fin.open(datasetFile, std::ios::in | std::ios::binary);
+	if (fin.is_open())
+	{
+		while (p)
+		{
+			for (int i = 0; i < p->keys.size(); i++)
+			{
+				fin.seekg(p->values[i]);
+				fin.read((char*)&book, sizeof book);
+				if (book.publish_year == y)
+				{
+					std::cout << book.book_id << " " << book.category << " " << book.title << " " << book.author << " " << book.publisher << " " << book.publish_year << " " << book.price << " " << " " << book.stock << std::endl;
+					isFind = true;
+				}
+			}
+			p = p->next;
+		}
+		if (fin.eof())
+			fin.clear();
+		fin.close();
+	}
+	if (!isFind)
+		std::cout << "cant find" << std::endl;
+}
+
+void LibrarySystem::removeBook(int k)
+{
+	bpTree.deleteLeaf(k);
+	saveBpTreeToFile();
+}
+
 void LibrarySystem::createBpTreeFromFile()
 {
 	KV kv;

@@ -18,6 +18,8 @@ public:
 	void clearKV();
 	void show();
 	void queryBook(int k);
+	void queryBook(int k, int y);
+	void removeBook(int k);
 private:
 	std::string kvFile;
 	std::string datasetFile;
