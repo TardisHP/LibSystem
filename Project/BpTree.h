@@ -5,7 +5,7 @@
 #include <vector>
 
 #define PAGE_SIZE 4096
-#define MAX_LEAF 400
+#define MAX_LEAF 256
 
 struct KV
 {
@@ -22,24 +22,24 @@ public:
     std::vector<long> pointers;         // 子节点位置，如果是叶节点，则储存文件位置
     long pre;                           // 如果是叶节点，则指向上一个叶节点
     long next;                          // 如果是叶节点，则指向下一个叶节点
-    long parent;                        // 父节点
 
-    BpTreeNode(bool _isLeaf);
-    //~BpTreeNode();
+    BpTreeNode(bool _isLeaf = false);
 };
 
 class BpTree
 {
 public:
-    BpTree();
+    BpTree(std::string tree, std::string node);
     ~BpTree();
-    long findLeaf(int k);
-    void insertToLeaf(int k, long v);
-    void deleteLeaf(int k);
-    long getHead();
-    long findPos(int k);
+    void insertToLeaf(int k, long v);   // 插入键值对
+    int deleteLeaf(int k);             // 删除
+    long findPos(int k);                // 查找
+    long getHead();                     // 获取叶节点头
     void show();
+    void iter();
 private:
+    std::vector<long> parentStackKey;         // 父节点栈，用于更新键值
+    std::vector<long> parentStackNode;        // 父节点栈，用于遍历子节点
     std::fstream treeFile;
     std::fstream treeNodeFile;
     long root;
@@ -47,13 +47,14 @@ private:
     long maxPoint;
     BpTreeNode node;
 
+    long findLeaf(int k);
     void serialize(long point, BpTreeNode& n);
     void deserialize(long point);
     void insertToNode(long p, long leafp, long newLeafp, int k);
     void splitNode(long p);
-    void deleteNode(long node, int it, int k);
+    void deleteNode(long p, int it, int k);
     void updateInnerNode(long p, int it, int k);
-    void updateInnerNode(long node, int k);
+    void updateInnerNode(long p, int k);
 };
 
 
