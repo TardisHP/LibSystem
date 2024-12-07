@@ -109,6 +109,8 @@ void BpTree::deserialize(long point)
 // 找到索引所在的叶节点的文件偏移
 long BpTree::findLeaf(int k)
 {
+    if (root == -1)
+        return -1;
     long p = root;
     deserialize(root);
     while (!node.isLeaf)
@@ -125,7 +127,7 @@ long BpTree::findLeaf(int k)
 }
 
 // 插入叶节点
-void BpTree::insertToLeaf(int k, long p)
+int BpTree::insertToLeaf(int k, long p)
 {
     if (root == -1)
     {
@@ -136,15 +138,16 @@ void BpTree::insertToLeaf(int k, long p)
         root = 0;
         head = 0;
         serialize(maxPoint++, node);
-        return;
+        return 1;
     }
     long leafP = findLeaf(k);
     int it = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
     // 键值相同则插入失败
     if (it < node.keycount && k == node.keys[it])
     {
-        std::cout << k << " insert FAILED!" << std::endl;
-        return;
+        parentStackNode.clear();
+        parentStackKey.clear();
+        return 0;
     }
     // 成功
     updateInnerNode(leafP, it, k);
@@ -157,6 +160,7 @@ void BpTree::insertToLeaf(int k, long p)
         splitNode(leafP);
     parentStackNode.clear();
     parentStackKey.clear();
+    return 1;
 }
 
 // 更新内部节点的最大索引
@@ -432,11 +436,6 @@ void BpTree::updateInnerNode(long p, int k)
     parentStackKey.clear();
 }
 
-long BpTree::getHead()
-{
-    return head;
-}
-
 void BpTree::show()
 {
     long p = head;
@@ -453,25 +452,30 @@ void BpTree::show()
     std::cout << std::endl;
 }
 
-void BpTree::iter()
+long BpTree::iter(Pair& pair)
 {
-    std::cout << std::endl;
-    for (long i = 0; i < maxPoint; i++)
+    if (pair.k == -1)
+        return -1;
+    deserialize(pair.k);
+    if (pair.v >= node.keycount)
     {
-        deserialize(i);
-        std::cout << "-- " << i  << " :" << std::endl;
-        for (int i = 0; i < node.keycount; i++)
-        {
-            std::cout << node.keys[i] << " ";
-        }
-        std::cout << std::endl;
+        pair.k = node.next;
+        pair.v = 0;
     }
-    std::cout << std::endl;
+    if (pair.k == -1)
+        return -1;
+    else
+    {
+        deserialize(pair.k);
+        return node.pointers[pair.v++];
+    }
 }
 
 long BpTree::findPos(int k)
 {
     long p = findLeaf(k);
+    if (p == -1)
+        return -1;
     parentStackKey.clear();
     parentStackNode.clear();
     for (int i = 0; i < node.keycount; i++)

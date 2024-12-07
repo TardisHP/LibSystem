@@ -1,8 +1,6 @@
 #ifndef _BOOK_H
 #define _BOOK_H
 
-#include <string>
-
 #define MAX_LEN 63
 
 class Book
@@ -19,6 +17,7 @@ public:
 
 	Book();
 	Book(const char* _ti, const char* _ca, const char* _au, const char* _pub, int _year, float _pr);
+	Book(const Book& b);
 };
 
 #endif // !_BOOK_H

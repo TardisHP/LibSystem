@@ -24,3 +24,15 @@ Book::Book(const char* _ti, const char* _ca, const char* _au, const char* _pub, 
 	price = _pr;
 	stock = 1;
 }
+
+Book::Book(const Book& b)
+{
+	book_id = b.book_id;
+	strcpy_s(title, b.title);
+	strcpy_s(category, b.category);
+	strcpy_s(author, b.author);
+	strcpy_s(publisher, b.publisher);
+	publish_year = b.publish_year;
+	price = b.price;
+	stock = b.stock;
+}

@@ -128,7 +128,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Book.cpp" />
+    <ClCompile Include="Borrow.cpp" />
     <ClCompile Include="BpTree.cpp" />
+    <ClCompile Include="Card.cpp" />
     <ClCompile Include="LibrarySystem.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>

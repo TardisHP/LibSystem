@@ -7,6 +7,7 @@
 #include "LibrarySystem.h"
 #include "Book.h"
 
+
 void calTime(std::chrono::system_clock::time_point t1, std::chrono::system_clock::time_point t2)
 {
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
@@ -18,16 +19,16 @@ int main()
 {
     LibrarySystem lib;
 
-    //std::vector<Book> books;
-    //for (int i = 0; i < 10000; i++)
-    //{
-    //    Book book("C++ Primer Plus", "K12312", "Sombody", "America", i+1, i+1);
-    //    books.push_back(book);
-    //}
-    //auto t1 = std::chrono::system_clock::now();
-    //lib.storeBooks(books);
-    //auto t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
+    std::vector<Book> books;
+    for (int i = 1; i <= 1000; i++)
+    {
+        Book book("C++ Primer Plus", "K12312", "Sombody", "America", i, i);
+        books.push_back(book);
+    }
+    auto t1 = std::chrono::system_clock::now();
+    lib.storeBooks(books);
+    auto t2 = std::chrono::system_clock::now();
+    calTime(t1, t2);
 
     lib.run();
 

@@ -1,19 +1,18 @@
 #ifndef _CARD_H
 #define _CARD_H
 
-#include <string>
+#include "Book.h"
 
 class Card
 {
 public:
 	int card_id;
-	std::string user_name;
-	std::string department;
+	char user_name[MAX_LEN];
+	char department[MAX_LEN];
 	char type;
-	Card(int _id, std::string _na, std::string _dep, char _ty) :
-		card_id(_id), user_name(_na), department(_dep), type(_ty)
-	{
-	}
+	Card();
+	Card(const char* _na, const char* _dep, char _t = 'S');
+	Card(const Card& _card);
 };
 
 #endif // !_CARD_H

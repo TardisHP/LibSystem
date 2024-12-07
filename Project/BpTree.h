@@ -7,10 +7,10 @@
 #define PAGE_SIZE 4096
 #define MAX_LEAF 256
 
-struct KV
+struct Pair
 {
-    int k;
-    std::streampos v;
+    long k;     // pos
+    long v;     // index
 };
 
 class BpTreeNode
@@ -29,21 +29,20 @@ public:
 class BpTree
 {
 public:
+    long head;
     BpTree(std::string tree, std::string node);
     ~BpTree();
-    void insertToLeaf(int k, long v);   // 插入键值对
-    int deleteLeaf(int k);             // 删除
+    int insertToLeaf(int k, long p);   // 插入键值对
+    int deleteLeaf(int k);              // 删除
     long findPos(int k);                // 查找
-    long getHead();                     // 获取叶节点头
+    long iter(Pair& pair);              // 遍历
     void show();
-    void iter();
 private:
     std::vector<long> parentStackKey;         // 父节点栈，用于更新键值
     std::vector<long> parentStackNode;        // 父节点栈，用于遍历子节点
     std::fstream treeFile;
     std::fstream treeNodeFile;
     long root;
-    long head;
     long maxPoint;
     BpTreeNode node;
 

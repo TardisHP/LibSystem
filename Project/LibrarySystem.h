@@ -12,21 +12,43 @@
 class LibrarySystem
 {
 public:
-	LibrarySystem(std::string bookTreeFile = "Dataset/bookTree.dat", std::string bookTreeNodeFile = "Dataset/bookTreeNode.dat");
+	LibrarySystem(std::string bookTreeFile = "Dataset/bookTree.dat", std::string bookTreeNodeFile = "Dataset/bookTreeNode.dat", 
+		std::string borrowTreeFile = "Dataset/borrowTree.dat", std::string borrowTreeNodeFile = "Dataset/borrowTreeNode.dat",
+		std::string cardTreeFile = "Dataset/cardTree.dat", std::string cardTreeNodeFile = "Dataset/cardTreeNode.dat");
 	void run();
 	void storeBook(Book& book);
 	void storeBooks(std::vector<Book>& books);
 	void queryBook(int k);
-	void queryBook(int k, int y);
+	void queryBook(int year_l, int year_r);
+	void queryBook(float price_l, float price_r);
+	void queryBook(const char* str, int type);
 	void removeBook(int k);
-	void incBookStock(int k, int deltaStock);
-	void modifyBookInfo(Book book);
+	int incBookStock(int k, int deltaStock);
+	void modifyBookInfo(Book _book);
+	void borrowBook(Borrow& borrow);
+	void returnBook(Borrow& borrow);
+	void showBorrowHistory(int cardId);
+	void registerCard(Card& card);
+	void removeCard(int cardId);
+	void showCards();
 private:
+	// 图书库
 	std::string bookDatasetFile;
 	std::string bookTreeFile;
 	std::string bookTreeNodeFile;
 	BpTree bookBpTree;
-	int keyMax;
+	// 借书记录
+	std::string borrowDatasetFile;
+	std::string borrowTreeFile;
+	std::string borrowTreeNodeFile;
+	BpTree borrowBpTree;
+	// 借书证库
+	std::string cardDatasetFile;
+	std::string cardTreeFile;
+	std::string cardTreeNodeFile;
+	BpTree cardBpTree;
+
+	int findSameBook(Book& _book);
 };
 
 #endif // !_LIBRARY_SYSTEM_H

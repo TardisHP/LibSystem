@@ -1,18 +1,19 @@
 #ifndef _BORROW_H
 #define _BORROW_H
 
+#include <chrono>
+
 class Borrow
 {
 public:
-	int user_id;
+	int borrow_id;
+	int card_id;
 	int book_id;
-	int borrow_date;
-	int return_date;
-	Borrow(int _userid, int _bookid, int _bdate, int _rdate)
-		:user_id(_userid), book_id(_bookid), borrow_date(_bdate), return_date(_rdate)
-	{
-	}
-	//int returnTimeCount();
+	std::time_t borrow_date;
+	std::time_t return_date;
+	
+	Borrow();
+	Borrow(int _cardid, int _bookid);
 };
 
 #endif // !_BORROW_H
