@@ -19,24 +19,15 @@ int main()
 {
     LibrarySystem lib;
 
-    /*std::vector<Book> books;
-    for (int i = 1; i <= 1000; i++)
-    {
-        Book book("C++ Primer Plus", "K12312", "Sombody", "America", i, i);
-        books.push_back(book);
-    }
-    auto t1 = std::chrono::system_clock::now();
-    lib.storeBooks(books);
-    auto t2 = std::chrono::system_clock::now();
-    calTime(t1, t2);*/
-    //lib.storeBooks("Dataset/addList copy.txt");
+    //auto t1 = std::chrono::system_clock::now();
+    //lib.storeBooks("Dataset/addList copy.dat");
+    //auto t2 = std::chrono::system_clock::now();
+    //calTime(t1, t2);
 
     //auto t1 = std::chrono::system_clock::now();
-    //lib.queryBook("C++", 1);
+    //lib.queryBook(-2, -1);
     //auto t2 = std::chrono::system_clock::now();
     //calTime(t1, t2);
 
     lib.run();
-
-    
 }

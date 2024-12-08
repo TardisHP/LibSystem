@@ -19,11 +19,11 @@ BpTree::BpTree(std::string tree, std::string node) : root(-1), head(-1), maxPoin
         char buffer[PAGE_SIZE] = "";
         treeFile.read(buffer, PAGE_SIZE);
         int offset = 0;
-        std::memcpy((char*)&root, buffer + offset, sizeof(long));
-        offset += sizeof(long);
-        std::memcpy((char*)&head, buffer + offset, sizeof(long));
-        offset += sizeof(long);
-        std::memcpy((char*)&maxPoint, buffer + offset, sizeof(long));
+        std::memcpy((char*)&root, buffer + offset, sizeof(unsigned long));
+        offset += sizeof(unsigned long);
+        std::memcpy((char*)&head, buffer + offset, sizeof(unsigned long));
+        offset += sizeof(unsigned long);
+        std::memcpy((char*)&maxPoint, buffer + offset, sizeof(unsigned long));
     }
 }
 
@@ -32,18 +32,18 @@ BpTree::~BpTree()
     treeFile.seekp(0);
     char buffer[PAGE_SIZE] = "";
     int offset = 0;
-    std::memcpy(buffer + offset, (char*)&root, sizeof(long));
-    offset += sizeof(long);
-    std::memcpy(buffer + offset, (char*)&head, sizeof(long));
-    offset += sizeof(long);
-    std::memcpy(buffer + offset, (char*)&maxPoint, sizeof(long));
+    std::memcpy(buffer + offset, (char*)&root, sizeof(unsigned long));
+    offset += sizeof(unsigned long);
+    std::memcpy(buffer + offset, (char*)&head, sizeof(unsigned long));
+    offset += sizeof(unsigned long);
+    std::memcpy(buffer + offset, (char*)&maxPoint, sizeof(unsigned long));
     treeFile.write(buffer, PAGE_SIZE);
     treeNodeFile.close();
     treeFile.close(); 
 }
 
 // 将node序列化加入到文件中
-void BpTree::serialize(long point, BpTreeNode& _node)
+void BpTree::serialize(unsigned long point, BpTreeNode& _node)
 {
     treeNodeFile.seekp(point * PAGE_SIZE);
     char buffer[PAGE_SIZE] = "";
@@ -59,20 +59,20 @@ void BpTree::serialize(long point, BpTreeNode& _node)
     }
     for (int i = 0; i < _node.keycount; i++)
     {
-        long p;
-        std::memcpy(buffer + offset, (char*)&_node.pointers[i], sizeof(long));
-        offset += sizeof(long);
+        unsigned long p;
+        std::memcpy(buffer + offset, (char*)&_node.pointers[i], sizeof(unsigned long));
+        offset += sizeof(unsigned long);
     }
-    std::memcpy(buffer + offset, (char*)&_node.pre, sizeof(long));
-    offset += sizeof(long);
-    std::memcpy(buffer + offset, (char*)&_node.next, sizeof(long));
-    //offset += sizeof(long);
-    //std::memcpy(buffer + offset, (char*)&_node.parent, sizeof(long));
+    std::memcpy(buffer + offset, (char*)&_node.pre, sizeof(unsigned long));
+    offset += sizeof(unsigned long);
+    std::memcpy(buffer + offset, (char*)&_node.next, sizeof(unsigned long));
+    //offset += sizeof(unsigned long);
+    //std::memcpy(buffer + offset, (char*)&_node.parent, sizeof(unsigned long));
     treeNodeFile.write(buffer, PAGE_SIZE);
 }
 
 // 从文件读取一个节点并解析
-void BpTree::deserialize(long point)
+void BpTree::deserialize(unsigned long point)
 {
     treeNodeFile.seekg(point * PAGE_SIZE);
     char buffer[PAGE_SIZE] = "";
@@ -94,24 +94,24 @@ void BpTree::deserialize(long point)
     }
     for (int i = 0; i < node.keycount; i++)
     {
-        long p;
-        std::memcpy(&p, buffer + offset, sizeof(long));
+        unsigned long p;
+        std::memcpy(&p, buffer + offset, sizeof(unsigned long));
         node.pointers.push_back(p);
-        offset += sizeof(long);
+        offset += sizeof(unsigned long);
     }
-    std::memcpy(&node.pre, buffer + offset, sizeof(long));
-    offset += sizeof(long);
-    std::memcpy(&node.next, buffer + offset, sizeof(long));
-    offset += sizeof(long);
-    //std::memcpy(&node.parent, buffer + offset, sizeof(long));
+    std::memcpy(&node.pre, buffer + offset, sizeof(unsigned long));
+    offset += sizeof(unsigned long);
+    std::memcpy(&node.next, buffer + offset, sizeof(unsigned long));
+    offset += sizeof(unsigned long);
+    //std::memcpy(&node.parent, buffer + offset, sizeof(unsigned long));
 }
 
 // 找到索引所在的叶节点的文件偏移
-long BpTree::findLeaf(int k)
+unsigned long BpTree::findLeaf(int k)
 {
     if (root == -1)
         return -1;
-    long p = root;
+    unsigned long p = root;
     deserialize(root);
     while (!node.isLeaf)
     {
@@ -127,7 +127,7 @@ long BpTree::findLeaf(int k)
 }
 
 // 插入叶节点
-int BpTree::insertToLeaf(int k, long p)
+int BpTree::insertToLeaf(int k, unsigned long p)
 {
     if (root == -1)
     {
@@ -140,7 +140,7 @@ int BpTree::insertToLeaf(int k, long p)
         serialize(maxPoint++, node);
         return 1;
     }
-    long leafP = findLeaf(k);
+    unsigned long leafP = findLeaf(k);
     int it = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
     // 键值相同则插入失败
     if (it < node.keycount && k == node.keys[it])
@@ -164,7 +164,7 @@ int BpTree::insertToLeaf(int k, long p)
 }
 
 // 更新内部节点的最大索引
-void BpTree::updateInnerNode(long p, int it, int k)
+void BpTree::updateInnerNode(unsigned long p, int it, int k)
 {
     deserialize(p);
     //if (node.parent == -1)
@@ -172,8 +172,8 @@ void BpTree::updateInnerNode(long p, int it, int k)
         return;
     if (it >= node.keycount)
     {
-        //long parent = node.parent;
-        long parent = parentStackKey.back();
+        //unsigned long parent = node.parent;
+        unsigned long parent = parentStackKey.back();
         parentStackKey.pop_back();
         deserialize(parent);
         it = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
@@ -185,14 +185,14 @@ void BpTree::updateInnerNode(long p, int it, int k)
 }
 
 // 节点分裂
-void BpTree::splitNode(long p)
+void BpTree::splitNode(unsigned long p)
 {
     int mid = node.keycount / 2;
     int midKey = node.keys[mid - 1];
     int maxKey = node.keys.back();
 
     BpTreeNode newNode = BpTreeNode(node.isLeaf);
-    long newPos = maxPoint++;
+    unsigned long newPos = maxPoint++;
     for (int i = mid; i < node.keycount; i++)
     {
         newNode.keys.push_back(node.keys[i]);
@@ -200,7 +200,7 @@ void BpTree::splitNode(long p)
         newNode.keycount++;
         //if (!node.isLeaf)
         //{
-        //    long tmp = node.pointers[i];
+        //    unsigned long tmp = node.pointers[i];
         //    deserialize(node.pointers[i]);
         //    node.parent = newPos;
         //    serialize(tmp, node);
@@ -214,7 +214,7 @@ void BpTree::splitNode(long p)
 
     if (node.isLeaf)
     {
-        long tmp = node.next;
+        unsigned long tmp = node.next;
         node.next = newPos;
         newNode.next = tmp;
         newNode.pre = p;
@@ -224,7 +224,7 @@ void BpTree::splitNode(long p)
     if (parentStackNode.empty())
     {
         BpTreeNode newRoot = BpTreeNode(false);
-        long newRootPos = maxPoint++;
+        unsigned long newRootPos = maxPoint++;
         newRoot.keys.push_back(midKey);
         newRoot.keys.push_back(maxKey);
         newRoot.pointers.push_back(p);
@@ -246,7 +246,7 @@ void BpTree::splitNode(long p)
 }
 
 // 插入非叶节点
-void BpTree::insertToNode(long p, long leafp, long newLeafp, int k)
+void BpTree::insertToNode(unsigned long p, unsigned long leafp, unsigned long newLeafp, int k)
 {
     parentStackNode.pop_back();
     //deserialize(newLeafp);
@@ -273,7 +273,7 @@ int BpTree::deleteLeaf(int k)
 {
     if (root == -1)
         return 0;
-    long leafP = findLeaf(k);
+    unsigned long leafP = findLeaf(k);
     int it = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
     // 键值找不到则删除失败
     if (it >= node.keycount || k != node.keys[it])
@@ -284,7 +284,7 @@ int BpTree::deleteLeaf(int k)
     return 1;
 }
 
-void BpTree::deleteNode(long p, int it, int k)
+void BpTree::deleteNode(unsigned long p, int it, int k)
 {
     deserialize(p);
     // 如果可以直接删除
@@ -315,7 +315,7 @@ void BpTree::deleteNode(long p, int it, int k)
     else
     {
         BpTreeNode parentNode;
-        long parent;
+        unsigned long parent;
         if (parentStackNode.empty())
             parent = -1;
         else
@@ -326,8 +326,8 @@ void BpTree::deleteNode(long p, int it, int k)
         int pit = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
 
         deserialize(p);
-        long pre = node.pre;
-        long next = node.next;
+        unsigned long pre = node.pre;
+        unsigned long next = node.next;
         if (!node.isLeaf)
         {
             if (pit > 0)
@@ -418,14 +418,14 @@ void BpTree::deleteNode(long p, int it, int k)
 
 }
 
-void BpTree::updateInnerNode(long p, int k)
+void BpTree::updateInnerNode(unsigned long p, int k)
 {
     if (parentStackKey.empty())
         return;
     int it = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
     if (it == node.keys.size() - 1)
     {
-        long parent = parentStackKey.back();
+        unsigned long parent = parentStackKey.back();
         parentStackKey.pop_back();
         deserialize(parent);
         int it = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
@@ -436,23 +436,23 @@ void BpTree::updateInnerNode(long p, int k)
     parentStackKey.clear();
 }
 
-void BpTree::show()
-{
-    long p = head;
-    while (p != -1)
-    {
-        deserialize(p);
-        for (int i = 0; i < node.keycount; i++)
-        {
-            std::cout << node.keys[i] << " ";
-        }
-        std::cout << "| ";
-        p = node.next;
-    }
-    std::cout << std::endl;
-}
+//void BpTree::show()
+//{
+//    unsigned long p = head;
+//    while (p != -1)
+//    {
+//        deserialize(p);
+//        for (int i = 0; i < node.keycount; i++)
+//        {
+//            std::cout << node.keys[i] << " ";
+//        }
+//        std::cout << "| ";
+//        p = node.next;
+//    }
+//    std::cout << std::endl;
+//}
 
-long BpTree::iter(Pair& pair)
+unsigned long BpTree::iter(Pair& pair)
 {
     if (pair.k == -1)
         return -1;
@@ -471,9 +471,21 @@ long BpTree::iter(Pair& pair)
     }
 }
 
-long BpTree::findPos(int k)
+std::vector<unsigned long>& BpTree::iter(unsigned long& p)
 {
-    long p = findLeaf(k);
+    if (p == -1)
+    {
+        std::vector<unsigned long> empty;
+        return empty;
+    }
+    deserialize(p);
+    p = node.next;
+    return node.pointers;
+}
+
+unsigned long BpTree::findPos(int k)
+{
+    unsigned long p = findLeaf(k);
     if (p == -1)
         return -1;
     parentStackKey.clear();

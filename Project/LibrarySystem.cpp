@@ -201,23 +201,26 @@ void LibrarySystem::run()
 
 int LibrarySystem::findSameBook(Book& _book, std::fstream& fin)
 {
-	Book book;
-	Pair p;
-	p.k = bookBpTree.head;
-	p.v = 0;
-	long pos = bookBpTree.iter(p);
+	std::vector<Book> books;
+	std::vector<unsigned long> poses;
+	unsigned long p = bookBpTree.head;
+	poses = bookBpTree.iter(p);
 	if (fin.is_open())
 	{
-		while (pos != -1)
+		while (!poses.empty())
 		{
-			fin.seekg(pos);
-			fin.read((char*)&book, sizeof book);
-			if (book.publish_year == _book.publish_year && strcmp(book.title, _book.title) == 0 && strcmp(book.category, _book.category) == 0
-				&& strcmp(book.author, _book.author) == 0 && strcmp(book.publisher, _book.publisher) == 0)
+			Book book;
+			for (unsigned long pos : poses)
 			{
-				return 1;
+				fin.seekg(pos);
+				fin.read((char*)&book, sizeof book);
+				if (book.publish_year == _book.publish_year && strcmp(book.title, _book.title) == 0 && strcmp(book.category, _book.category) == 0
+					&& strcmp(book.author, _book.author) == 0 && strcmp(book.publisher, _book.publisher) == 0)
+				{
+					return 1;
+				}
 			}
-			pos = bookBpTree.iter(p);
+			poses = bookBpTree.iter(p);
 		}
 	}
 	return 0;
@@ -227,7 +230,7 @@ void LibrarySystem::storeBook(Book& book)
 {
 	std::fstream finout;
 	finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
-	long v;
+	unsigned long v;
 	
 	if (findSameBook(book, finout))
 	{
@@ -237,20 +240,22 @@ void LibrarySystem::storeBook(Book& book)
 
 	if (finout.is_open())
 	{
-		finout.seekp(0, std::ios::end);
-		v = finout.tellp();
-		// std::cout << "Storing Book..." << std::endl;
+		std::cout << "Storing Book..." << std::endl;
 		// Éú³Éid
 		std::random_device rd;
 		std::mt19937 engine(rd());
-		std::uniform_int_distribution<int> dist(1, std::numeric_limits<int>::max());
+		std::uniform_int_distribution<int> dist(1, MAX_BOOK_NUM);
 		do
 		{
+			finout.seekp(0, std::ios::end);
+			v = finout.tellp();
 			book.book_id = dist(engine);
 		} while (bookBpTree.insertToLeaf(book.book_id, v) == 0);
+		finout.seekp(0, std::ios::end);
 		finout.write((char*)&book, sizeof book);
 		finout.close();
 	}
+	std::cout << "Book[ " << book.book_id << " ]Stored!" << std::endl;
 }
 
 void split(const std::string& s, std::vector<std::string>& tokens, const std::string& delimiters = " ")
@@ -277,8 +282,8 @@ void LibrarySystem::storeBooks(std::string path)
 			Book book;
 			std::string bookInfo;
 			finout.seekp(0, std::ios::end);
-			long pos = finout.tellp();
-			long offset = sizeof book;
+			unsigned long pos = finout.tellp();
+			unsigned long offset = sizeof book;
 			int num = pos;
 			while (getline(origin, bookInfo))
 			{
@@ -338,7 +343,7 @@ void showInfo(std::vector<Book>& books)
 void LibrarySystem::queryBook(int k)
 {
 	Book book;
-	long v = bookBpTree.findPos(k);
+	unsigned long v = bookBpTree.findPos(k);
 	if (v == -1)
 	{
 		std::cout << "Book [ " << k << " ] can NOT find!" << std::endl;
@@ -361,37 +366,39 @@ void LibrarySystem::queryBook(int year_l, int year_r)
 {
 	std::fstream fin;
 	std::vector<Book> books;
-	Pair p;
-	p.k = bookBpTree.head;
-	p.v = 0;
-	long pos = bookBpTree.iter(p);
+	std::vector<unsigned long> poses;
+	unsigned long p = bookBpTree.head;
+	poses = bookBpTree.iter(p);
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
 		int num = 0;
-		while (pos != -1)
+		while (!poses.empty())
 		{
 			Book book;
-			fin.seekg(pos);
-			fin.read((char*)&book, sizeof book);
-			if (book.publish_year >= year_l && book.publish_year <= year_r)
+			for (unsigned long pos : poses)
 			{
-				books.push_back(book);
-				num++;
-				if (num % 20 == 0 && num > 0)
+				fin.seekg(pos);
+				fin.read((char*)&book, sizeof book);
+				if (book.publish_year >= year_l && book.publish_year <= year_r)
 				{
-					showInfo(books);
-					books.clear();
-					char c;
-					std::cin >> c;
-					if (c == 'q')
+					books.push_back(book);
+					num++;
+					if (num % 20 == 0 && num > 0)
 					{
-						fin.close();
-						return;
+						showInfo(books);
+						books.clear();
+						char c;
+						std::cin >> c;
+						if (c == 'q')
+						{
+							fin.close();
+							return;
+						}
 					}
 				}
 			}
-			pos = bookBpTree.iter(p);
+			poses = bookBpTree.iter(p);
 		}
 		fin.close();
 	}
@@ -402,37 +409,39 @@ void LibrarySystem::queryBook(float price_l, float price_r)
 {
 	std::fstream fin;
 	std::vector<Book> books;
-	Pair p;
-	p.k = bookBpTree.head;
-	p.v = 0;
-	long pos = bookBpTree.iter(p);
+	std::vector<unsigned long> poses;
+	unsigned long p = bookBpTree.head;
+	poses = bookBpTree.iter(p);
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
 		int num = 0;
-		while (pos != -1)
+		while (!poses.empty())
 		{
 			Book book;
-			fin.seekg(pos);
-			fin.read((char*)&book, sizeof book);
-			if (book.price >= price_l && book.price <= price_r)
+			for (unsigned long pos : poses)
 			{
-				books.push_back(book);
-				num++;
-				if (num % 20 == 0 && num > 0)
+				fin.seekg(pos);
+				fin.read((char*)&book, sizeof book);
+				if (book.publish_year >= price_l && book.publish_year <= price_r)
 				{
-					showInfo(books);
-					books.clear();
-					char c;
-					std::cin >> c;
-					if (c == 'q')
+					books.push_back(book);
+					num++;
+					if (num % 20 == 0 && num > 0)
 					{
-						fin.close();
-						return;
+						showInfo(books);
+						books.clear();
+						char c;
+						std::cin >> c;
+						if (c == 'q')
+						{
+							fin.close();
+							return;
+						}
 					}
 				}
 			}
-			pos = bookBpTree.iter(p);
+			poses = bookBpTree.iter(p);
 		}
 		fin.close();
 	}
@@ -443,101 +452,103 @@ void LibrarySystem::queryBook(const char* str, int type)
 {
 	std::fstream fin;
 	std::vector<Book> books;
-	Pair p;
-	p.k = bookBpTree.head;
-	p.v = 0;
-	long pos = bookBpTree.iter(p);
+	std::vector<unsigned long> poses;
+	unsigned long p = bookBpTree.head;
+	poses = bookBpTree.iter(p);
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
 		int num = 0;
-		while (pos != -1)
+		while (!poses.empty())
 		{
 			Book book;
-			fin.seekg(pos);
-			fin.read((char*)&book, sizeof book);
-			switch (type)
+			for (unsigned long pos : poses)
 			{
-			case 0:
-				if (std::strcmp(book.category, str) == 0)
+				fin.seekg(pos);
+				fin.read((char*)&book, sizeof book);
+				switch (type)
 				{
-					books.push_back(book);
-					num++;
-					if (num % 20 == 0 && num > 0)
+				case 0:
+					if (std::strcmp(book.category, str) == 0)
 					{
-						showInfo(books);
-						books.clear();
-						char c;
-						std::cin >> c;
-						if (c == 'q')
+						books.push_back(book);
+						num++;
+						if (num % 20 == 0 && num > 0)
 						{
-							fin.close();
-							return;
+							showInfo(books);
+							books.clear();
+							char c;
+							std::cin >> c;
+							if (c == 'q')
+							{
+								fin.close();
+								return;
+							}
 						}
 					}
-				}
-				break;
-			case 1:
-				if (std::strstr(book.title, str))
-				{
-					books.push_back(book);
-					num++;
-					if (num % 20 == 0 && num > 0)
+					break;
+				case 1:
+					if (std::strstr(book.title, str))
 					{
-						showInfo(books);
-						books.clear();
-						char c;
-						std::cin >> c;
-						if (c == 'q')
+						books.push_back(book);
+						num++;
+						if (num % 20 == 0 && num > 0)
 						{
-							fin.close();
-							return;
+							showInfo(books);
+							books.clear();
+							char c;
+							std::cin >> c;
+							if (c == 'q')
+							{
+								fin.close();
+								return;
+							}
 						}
 					}
-				}
-				break;
-			case 2:
-				if (std::strstr(book.publisher, str))
-				{
-					books.push_back(book);
-					num++;
-					if (num % 20 == 0 && num > 0)
+					break;
+				case 2:
+					if (std::strstr(book.publisher, str))
 					{
-						showInfo(books);
-						books.clear();
-						char c;
-						std::cin >> c;
-						if (c == 'q')
+						books.push_back(book);
+						num++;
+						if (num % 20 == 0 && num > 0)
 						{
-							fin.close();
-							return;
+							showInfo(books);
+							books.clear();
+							char c;
+							std::cin >> c;
+							if (c == 'q')
+							{
+								fin.close();
+								return;
+							}
 						}
 					}
-				}
-				break;
-			case 3:
-				if (std::strstr(book.author, str))
-				{
-					books.push_back(book);
-					num++;
-					if (num % 20 == 0 && num > 0)
+					break;
+				case 3:
+					if (std::strstr(book.author, str))
 					{
-						showInfo(books);
-						books.clear();
-						char c;
-						std::cin >> c;
-						if (c == 'q')
+						books.push_back(book);
+						num++;
+						if (num % 20 == 0 && num > 0)
 						{
-							fin.close();
-							return;
+							showInfo(books);
+							books.clear();
+							char c;
+							std::cin >> c;
+							if (c == 'q')
+							{
+								fin.close();
+								return;
+							}
 						}
 					}
+					break;
+				default:
+					break;
 				}
-				break;
-			default:
-				break;
 			}
-				pos = bookBpTree.iter(p);
+			poses = bookBpTree.iter(p);
 		}
 		fin.close();
 	}
@@ -546,7 +557,7 @@ void LibrarySystem::queryBook(const char* str, int type)
 
 void LibrarySystem::modifyBookInfo(Book _book)
 {
-	long pos = bookBpTree.findPos(_book.book_id);
+	unsigned long pos = bookBpTree.findPos(_book.book_id);
 	if (pos == -1)
 	{
 		std::cout << "can NOT find the book" << std::endl;
@@ -584,7 +595,7 @@ void LibrarySystem::removeBook(int k)
 int LibrarySystem::incBookStock(int k, int deltaStock)
 {
 	Book book;
-	long pos = bookBpTree.findPos(k);
+	unsigned long pos = bookBpTree.findPos(k);
 	if (pos == -1)
 	{
 		std::cout << "Book [ " << k << " ] can NOT find!" << std::endl;
@@ -619,7 +630,7 @@ void LibrarySystem::borrowBook(Borrow& borrow)
 		return;
 	}
 
-	long pos;
+	unsigned long pos;
 	std::fstream finout;
 	finout.open(borrowDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
 	if (finout.is_open())
@@ -659,7 +670,7 @@ void LibrarySystem::returnBook(Borrow& borrow)
 		return;
 	}
 
-	long pos = borrowBpTree.findPos(borrow.borrow_id);
+	unsigned long pos = borrowBpTree.findPos(borrow.borrow_id);
 	std::fstream finout;
 	finout.open(borrowDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
 	if (finout.is_open())
@@ -699,7 +710,7 @@ void LibrarySystem::showBorrowHistory(int cardId)
 	Pair p;
 	p.k = borrowBpTree.head;
 	p.v = 0;
-	long pos = borrowBpTree.iter(p);
+	unsigned long pos = borrowBpTree.iter(p);
 	fin.open(borrowDatasetFile, std::ios::in | std::ios::binary);
 	std::cout << "cardID" << std::setw(15) << "bookID" << std::setw(30) << "borrow" << std::setw(30) << "return" <<  std::endl;
 	if (fin.is_open())
@@ -744,7 +755,7 @@ void LibrarySystem::registerCard(Card& card)
 	Pair p;
 	p.k = cardBpTree.head;
 	p.v = 0;
-	long pos = cardBpTree.iter(p);
+	unsigned long pos = cardBpTree.iter(p);
 	finout.open(cardDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
 	if (finout.is_open())
 	{
@@ -791,7 +802,7 @@ void LibrarySystem::showCards()
 	Pair p;
 	p.k = cardBpTree.head;
 	p.v = 0;
-	long pos = cardBpTree.iter(p);
+	unsigned long pos = cardBpTree.iter(p);
 	fin.open(cardDatasetFile, std::ios::in | std::ios::binary);
 	std::cout << "cardID" << std::setw(15) << "name" << std::setw(15) << "department" << std::setw(15) << "type" << std::endl;
 	if (fin.is_open())

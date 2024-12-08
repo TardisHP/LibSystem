@@ -9,6 +9,8 @@
 #include "Card.h"
 #include "Borrow.h"
 
+#define MAX_BOOK_NUM 15000000
+
 class LibrarySystem
 {
 public:
