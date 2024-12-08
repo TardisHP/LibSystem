@@ -17,7 +17,7 @@ public:
 		std::string cardTreeFile = "Dataset/cardTree.dat", std::string cardTreeNodeFile = "Dataset/cardTreeNode.dat");
 	void run();
 	void storeBook(Book& book);
-	void storeBooks(std::vector<Book>& books);
+	void storeBooks(std::string path);
 	void queryBook(int k);
 	void queryBook(int year_l, int year_r);
 	void queryBook(float price_l, float price_r);
@@ -48,7 +48,7 @@ private:
 	std::string cardTreeNodeFile;
 	BpTree cardBpTree;
 
-	int findSameBook(Book& _book);
+	int findSameBook(Book& _book, std::fstream& fin);
 };
 
 #endif // !_LIBRARY_SYSTEM_H

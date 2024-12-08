@@ -27,9 +27,9 @@ void message()
 {
 	std::cout << "-------------------------------------------------------------" << std::endl
 		<< "s: store a book\t\ti: change inc\t\tr: remove a book" << std::endl
-		<< "q: query books\t\tb: borrow a book\th: show borrow history" << std::endl
-		<< "t: return a book\tc: regester a card\to: remove a card" << std::endl
-		<< "p: show all cards" << std::endl
+		<< "q: query books\t\tm: modify a book info" << std::endl
+		<< "b: borrow a book\tt: return a book\th: show borrow history" << std::endl
+		<< "c: regester a card\to: remove a card\tp: show all cards" << std::endl
 		<< "e: exit" << std::endl
 		<< "-------------------------------------------------------------" << std::endl;
 }
@@ -46,8 +46,26 @@ void LibrarySystem::run()
 		switch (c)
 		{
 		case 's':
-			std::cout << "stored" << std::endl;
+		{
+			Book book;
+			getchar();
+			std::cout << "Enter the book title:" << std::endl;
+			std::cin.getline(book.title, MAX_LEN);
+			std::cout << "Enter the book category:" << std::endl;
+			std::cin.getline(book.category, MAX_LEN);
+			std::cout << "Enter the book author:" << std::endl;
+			std::cin.getline(book.author, MAX_LEN);
+			std::cout << "Enter the book publisher:" << std::endl;
+			std::cin.getline(book.publisher, MAX_LEN);
+			std::cout << "Enter the book year:" << std::endl;
+			std::cin >> book.publish_year;
+			std::cout << "Enter the book price:" << std::endl;
+			std::cin >> book.price;
+			std::cout << "Enter the book stock:" << std::endl;
+			std::cin >> book.stock;
+			storeBook(book);
 			break;
+		}
 		case 'i':
 			std::cout << "Enter the book id:" << std::endl;
 			std::cin >> k;
@@ -60,6 +78,27 @@ void LibrarySystem::run()
 			std::cin >> k;
 			removeBook(k);
 			break;
+		case 'm':
+		{
+			Book book;
+			std::cout << "Enter the book id:" << std::endl;
+			std::cin >> book.book_id;
+			getchar();
+			std::cout << "Enter the book title:" << std::endl;
+			std::cin.getline(book.title, MAX_LEN);
+			std::cout << "Enter the book category:" << std::endl;
+			std::cin.getline(book.category, MAX_LEN);
+			std::cout << "Enter the book author:" << std::endl;
+			std::cin.getline(book.author, MAX_LEN);
+			std::cout << "Enter the book publisher:" << std::endl;
+			std::cin.getline(book.publisher, MAX_LEN);
+			std::cout << "Enter the book year:" << std::endl;
+			std::cin >> book.publish_year;
+			std::cout << "Enter the book price:" << std::endl;
+			std::cin >> book.price;
+			modifyBookInfo(book);
+			break;
+		}
 		case 'q':
 			std::cout << "-------------------------------------------------------------" << std::endl
 				<< "1: by id\t\t2: by category\t\t3: by title" << std::endl
@@ -104,7 +143,6 @@ void LibrarySystem::run()
 			default:
 				break;
 			}
-			queryBook(k);
 			break;
 		case 'b':
 		{
@@ -161,15 +199,13 @@ void LibrarySystem::run()
 	}
 }
 
-int LibrarySystem::findSameBook(Book& _book)
+int LibrarySystem::findSameBook(Book& _book, std::fstream& fin)
 {
-	std::fstream fin;
 	Book book;
 	Pair p;
 	p.k = bookBpTree.head;
 	p.v = 0;
 	long pos = bookBpTree.iter(p);
-	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
 		while (pos != -1)
@@ -179,27 +215,26 @@ int LibrarySystem::findSameBook(Book& _book)
 			if (book.publish_year == _book.publish_year && strcmp(book.title, _book.title) == 0 && strcmp(book.category, _book.category) == 0
 				&& strcmp(book.author, _book.author) == 0 && strcmp(book.publisher, _book.publisher) == 0)
 			{
-				fin.close();
 				return 1;
 			}
 			pos = bookBpTree.iter(p);
 		}
-		fin.close();
 	}
 	return 0;
 }
 
 void LibrarySystem::storeBook(Book& book)
 {
-	if (findSameBook(book))
+	std::fstream finout;
+	finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
+	long v;
+	
+	if (findSameBook(book, finout))
 	{
 		std::cout << "Book REPEATED!" << std::endl;
 		return;
 	}
 
-	long v;
-	std::fstream finout;
-	finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
 	if (finout.is_open())
 	{
 		finout.seekp(0, std::ios::end);
@@ -218,19 +253,58 @@ void LibrarySystem::storeBook(Book& book)
 	}
 }
 
-void LibrarySystem::storeBooks(std::vector<Book>& books)
+void split(const std::string& s, std::vector<std::string>& tokens, const std::string& delimiters = " ")
 {
-	long v;
-	long offset = sizeof Book;
-	std::fstream finout;
-	std::cout << "Start Stroing..." << std::endl;
-	int num = 0;
-	int iter = books.size() / 10 + 1;
-	for (auto& book : books)
+	std::string::size_type lastPos = s.find_first_not_of(delimiters, 0);
+	std::string::size_type pos = s.find_first_of(delimiters, lastPos);
+	while (std::string::npos != pos || std::string::npos != lastPos) {
+		tokens.push_back(s.substr(lastPos, pos - lastPos));//use emplace_back after C++11
+		lastPos = s.find_first_not_of(delimiters, pos);
+		pos = s.find_first_of(delimiters, lastPos);
+	}
+}
+
+void LibrarySystem::storeBooks(std::string path)
+{
+	std::fstream origin, finout;
+	origin.open(path, std::ios::in);
+	if (origin.is_open())
 	{
-		storeBook(book);
-		if (++num % iter == 0)
-			std::cout << "# " << num << " has benn finished..." << std::endl;
+		std::fstream finout;
+		finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
+		if (finout.is_open())
+		{
+			Book book;
+			std::string bookInfo;
+			finout.seekp(0, std::ios::end);
+			long pos = finout.tellp();
+			long offset = sizeof book;
+			int num = pos;
+			while (getline(origin, bookInfo))
+			{
+				std::vector<std::string> tokens;
+				split(bookInfo, tokens);
+
+				book.book_id = num;
+				strcpy_s(book.title, tokens[0].c_str());
+				strcpy_s(book.category, tokens[1].c_str());
+				strcpy_s(book.author, tokens[2].c_str());
+				strcpy_s(book.publisher, tokens[3].c_str());
+				book.publish_year = std::stoi(tokens[4]);
+				book.price = std::stof(tokens[5]);
+				book.stock = 5;
+				
+				finout.seekp(pos);
+				finout.write((char*)&book, sizeof book);
+				bookBpTree.insertToLeaf(num, pos);
+				num++;
+				pos += offset;
+				if (num % 10000 == 0)
+					std::cout << "# " << num << " has benn finished..." << std::endl;
+			}
+			finout.close();
+		}
+		origin.close();
 	}
 	std::cout << "Store finished!" << std::endl;
 }
@@ -294,13 +368,29 @@ void LibrarySystem::queryBook(int year_l, int year_r)
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
+		int num = 0;
 		while (pos != -1)
 		{
 			Book book;
 			fin.seekg(pos);
 			fin.read((char*)&book, sizeof book);
 			if (book.publish_year >= year_l && book.publish_year <= year_r)
+			{
 				books.push_back(book);
+				num++;
+				if (num % 20 == 0 && num > 0)
+				{
+					showInfo(books);
+					books.clear();
+					char c;
+					std::cin >> c;
+					if (c == 'q')
+					{
+						fin.close();
+						return;
+					}
+				}
+			}
 			pos = bookBpTree.iter(p);
 		}
 		fin.close();
@@ -319,13 +409,29 @@ void LibrarySystem::queryBook(float price_l, float price_r)
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
+		int num = 0;
 		while (pos != -1)
 		{
 			Book book;
 			fin.seekg(pos);
 			fin.read((char*)&book, sizeof book);
 			if (book.price >= price_l && book.price <= price_r)
+			{
 				books.push_back(book);
+				num++;
+				if (num % 20 == 0 && num > 0)
+				{
+					showInfo(books);
+					books.clear();
+					char c;
+					std::cin >> c;
+					if (c == 'q')
+					{
+						fin.close();
+						return;
+					}
+				}
+			}
 			pos = bookBpTree.iter(p);
 		}
 		fin.close();
@@ -344,6 +450,7 @@ void LibrarySystem::queryBook(const char* str, int type)
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
+		int num = 0;
 		while (pos != -1)
 		{
 			Book book;
@@ -352,25 +459,85 @@ void LibrarySystem::queryBook(const char* str, int type)
 			switch (type)
 			{
 			case 0:
-				if (std::strstr(book.category, str))
+				if (std::strcmp(book.category, str) == 0)
+				{
 					books.push_back(book);
+					num++;
+					if (num % 20 == 0 && num > 0)
+					{
+						showInfo(books);
+						books.clear();
+						char c;
+						std::cin >> c;
+						if (c == 'q')
+						{
+							fin.close();
+							return;
+						}
+					}
+				}
 				break;
 			case 1:
 				if (std::strstr(book.title, str))
+				{
 					books.push_back(book);
+					num++;
+					if (num % 20 == 0 && num > 0)
+					{
+						showInfo(books);
+						books.clear();
+						char c;
+						std::cin >> c;
+						if (c == 'q')
+						{
+							fin.close();
+							return;
+						}
+					}
+				}
 				break;
 			case 2:
 				if (std::strstr(book.publisher, str))
+				{
 					books.push_back(book);
+					num++;
+					if (num % 20 == 0 && num > 0)
+					{
+						showInfo(books);
+						books.clear();
+						char c;
+						std::cin >> c;
+						if (c == 'q')
+						{
+							fin.close();
+							return;
+						}
+					}
+				}
 				break;
 			case 3:
 				if (std::strstr(book.author, str))
+				{
 					books.push_back(book);
+					num++;
+					if (num % 20 == 0 && num > 0)
+					{
+						showInfo(books);
+						books.clear();
+						char c;
+						std::cin >> c;
+						if (c == 'q')
+						{
+							fin.close();
+							return;
+						}
+					}
+				}
 				break;
 			default:
 				break;
 			}
-			pos = bookBpTree.iter(p);
+				pos = bookBpTree.iter(p);
 		}
 		fin.close();
 	}
@@ -398,6 +565,7 @@ void LibrarySystem::modifyBookInfo(Book _book)
 		strcpy_s(book.author, _book.author);
 		strcpy_s(book.publisher, _book.publisher);
 		book.publish_year = _book.publish_year;
+		book.price = _book.price;
 		finout.seekp(pos);
 		finout.write((char*)&book, sizeof book);
 		finout.close();
