@@ -16,7 +16,8 @@ class LibrarySystem
 public:
 	LibrarySystem(std::string bookTreeFile = "Dataset/bookTree.dat", std::string bookTreeNodeFile = "Dataset/bookTreeNode.dat", 
 		std::string borrowTreeFile = "Dataset/borrowTree.dat", std::string borrowTreeNodeFile = "Dataset/borrowTreeNode.dat",
-		std::string cardTreeFile = "Dataset/cardTree.dat", std::string cardTreeNodeFile = "Dataset/cardTreeNode.dat");
+		std::string cardTreeFile = "Dataset/cardTree.dat", std::string cardTreeNodeFile = "Dataset/cardTreeNode.dat",
+		std::string hashTreeFile = "Dataset/hashTree.dat", std::string hashTreeNodeFile = "Dataset/hashTreeNode.dat");
 	void run();
 	void storeBook(Book& book);
 	void storeBooks(std::string path);
@@ -49,8 +50,12 @@ private:
 	std::string cardTreeFile;
 	std::string cardTreeNodeFile;
 	BpTree cardBpTree;
+	// ×Ö·û´®¹þÏ££¬¿ìËÙÅÐ¶ÏÖØ¸´
+	std::string hashTreeFile;
+	std::string hashTreeNodeFile;
+	BpTree hashBpTree;
 
-	int findSameBook(Book& _book, std::fstream& fin);
+	int findSameBook(Book& _book);
 };
 
 #endif // !_LIBRARY_SYSTEM_H

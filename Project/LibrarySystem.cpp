@@ -6,6 +6,7 @@
 #include <fstream>
 #include <chrono>
 #include <random>
+#include <sstream>
 
 #include "LibrarySystem.h"
 #include "Book.h"
@@ -14,9 +15,11 @@
 
 LibrarySystem::LibrarySystem(std::string bookTreeFile, std::string bookTreeNodeFile, 
 	std::string borrowTreeFile, std::string borrowTreeNodeFile,
-	std::string cardTreeFile, std::string cardTreeNodeFile
+	std::string cardTreeFile, std::string cardTreeNodeFile,
+	std::string hashTreeFile, std::string hashTreeNodeFile
 	)
-	:bookBpTree(bookTreeFile, bookTreeNodeFile), borrowBpTree(borrowTreeFile, borrowTreeNodeFile), cardBpTree(cardTreeFile, cardTreeNodeFile)
+	:bookBpTree(bookTreeFile, bookTreeNodeFile), borrowBpTree(borrowTreeFile, borrowTreeNodeFile), 
+	 cardBpTree(cardTreeFile, cardTreeNodeFile), hashBpTree(hashTreeFile, hashTreeNodeFile)
 {
 	bookDatasetFile = "Dataset/bookDataset.dat";
 	borrowDatasetFile = "Dataset/borrowDataset.dat";
@@ -48,6 +51,7 @@ void LibrarySystem::run()
 		case 's':
 		{
 			Book book;
+			char checking;
 			getchar();
 			std::cout << "Enter the book title:" << std::endl;
 			std::cin.getline(book.title, MAX_LEN);
@@ -199,30 +203,14 @@ void LibrarySystem::run()
 	}
 }
 
-int LibrarySystem::findSameBook(Book& _book, std::fstream& fin)
+int LibrarySystem::findSameBook(Book& _book)
 {
-	std::vector<Book> books;
-	std::vector<unsigned long> poses;
-	unsigned long p = bookBpTree.head;
-	poses = bookBpTree.iter(p);
-	if (fin.is_open())
-	{
-		while (!poses.empty())
-		{
-			Book book;
-			for (unsigned long pos : poses)
-			{
-				fin.seekg(pos);
-				fin.read((char*)&book, sizeof book);
-				if (book.publish_year == _book.publish_year && strcmp(book.title, _book.title) == 0 && strcmp(book.category, _book.category) == 0
-					&& strcmp(book.author, _book.author) == 0 && strcmp(book.publisher, _book.publisher) == 0)
-				{
-					return 1;
-				}
-			}
-			poses = bookBpTree.iter(p);
-		}
-	}
+	std::stringstream ss;
+	ss << _book.title << _book.category << _book.author << _book.publisher << _book.publish_year;
+	std::hash<std::string> hash_fn;
+	size_t hash_value = hash_fn(ss.str());
+	if (hashBpTree.findPos(hash_value) != -1)
+		return 1;
 	return 0;
 }
 
@@ -232,7 +220,8 @@ void LibrarySystem::storeBook(Book& book)
 	finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
 	unsigned long v;
 	
-	if (findSameBook(book, finout))
+	std::cout << "Checking Book..." << std::endl;
+	if (findSameBook(book))
 	{
 		std::cout << "Book REPEATED!" << std::endl;
 		return;
@@ -251,6 +240,13 @@ void LibrarySystem::storeBook(Book& book)
 			v = finout.tellp();
 			book.book_id = dist(engine);
 		} while (bookBpTree.insertToLeaf(book.book_id, v) == 0);
+		// ¹þÏ£
+		std::stringstream ss;
+		ss << book.title << book.category << book.author << book.publisher << book.publish_year;
+		std::hash<std::string> hash_fn;
+		size_t hash_value = hash_fn(ss.str());
+		hashBpTree.insertToLeaf(hash_value, 1);
+
 		finout.seekp(0, std::ios::end);
 		finout.write((char*)&book, sizeof book);
 		finout.close();
@@ -302,6 +298,13 @@ void LibrarySystem::storeBooks(std::string path)
 				finout.seekp(pos);
 				finout.write((char*)&book, sizeof book);
 				bookBpTree.insertToLeaf(num, pos);
+				// ¹þÏ£
+				std::stringstream ss;
+				ss << book.title << book.category << book.author << book.publisher << book.publish_year;
+				std::hash<std::string> hash_fn;
+				size_t hash_value = hash_fn(ss.str());
+				hashBpTree.insertToLeaf(hash_value, 1);
+
 				num++;
 				pos += offset;
 				if (num % 10000 == 0)
@@ -769,7 +772,7 @@ void LibrarySystem::registerCard(Card& card)
 				finout.close();
 				return;
 			}
-			pos = borrowBpTree.iter(p);
+			pos = cardBpTree.iter(p);
 		}
 		finout.seekp(0, std::ios::end);
 		pos = finout.tellp();
