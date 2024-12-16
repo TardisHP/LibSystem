@@ -208,6 +208,7 @@ void LibrarySystem::run()
 			std::cout << "Enter the book id:" << std::endl;
 			std::cout << ">> ";
 			std::cin >> bid;
+			eatline();
 			Borrow b(cid, bid);
 			status = borrowBook(b);
 			break;
@@ -221,12 +222,18 @@ void LibrarySystem::run()
 			std::cout << "Enter the book id:" << std::endl;
 			std::cout << ">> ";
 			std::cin >> bid;
+			eatline();
 			Borrow b(cid, bid);
 			status = returnBook(b);
 			break;
 		}
 		case 'h':
-			showBorrowHistory(123);
+			int cid, bid;
+			std::cout << "Enter the card id:" << std::endl;
+			std::cout << ">> ";
+			std::cin >> cid;
+			eatline();
+			showBorrowHistory(cid);
 			break;
 		case 'c':
 		{
@@ -239,7 +246,7 @@ void LibrarySystem::run()
 			std::cout << "Enter your departure:" << std::endl;
 			std::cout << ">> ";
 			std::cin.getline(dp, MAX_LEN);
-			std::cout << "Enter your identity:" << std::endl;
+			std::cout << "Enter your identity (S/T):" << std::endl;
 			std::cout << ">> ";
 			std::cin >> id;
 			eatline();
@@ -253,6 +260,7 @@ void LibrarySystem::run()
 			std::cout << "Enter the card id:" << std::endl;
 			std::cout << ">> ";
 			std::cin >> cid;
+			eatline();
 			status = removeCard(cid);
 			break;
 		}
@@ -756,7 +764,6 @@ int LibrarySystem::returnBook(Borrow& borrow)
 		incBookStock(borrow.book_id, 1);
 		finout.close();
 	}
-	std::cout << "Return SUCCESSED!" << std::endl;
 	return 106;
 }
 
@@ -769,24 +776,28 @@ void LibrarySystem::showBorrowHistory(int cardId)
 	p.v = 0;
 	unsigned long pos = borrowBpTree.iter(p);
 	fin.open(borrowDatasetFile, std::ios::in | std::ios::binary);
-	std::cout << "cardID" << std::setw(15) << "bookID" << std::setw(30) << "borrow" << std::setw(30) << "return" <<  std::endl;
+	std::cout << std::left << std::setw(15) << "cardID" << std::setw(15) << "bookID" << std::setw(30) << "borrow" << std::setw(30) << "return" <<  std::endl;
 	if (fin.is_open())
 	{
 		while (pos != -1)
 		{
 			fin.seekg(pos);
 			fin.read((char*)&borrow, sizeof borrow);
-			// 删去换行
-			std::string time_s(std::ctime(&borrow.borrow_date));
-			time_s.pop_back();
-			std::cout << borrow.card_id << std::setw(15) << borrow.book_id << std::setw(30) << time_s << std::setw(30);
-			if (borrow.return_date == 0)
-				std::cout << "None" << std::endl;
-			else
+			if (borrow.card_id == cardId)
 			{
-				time_s = std::ctime(&borrow.return_date);
+				// 删去换行
+				std::string time_s(std::ctime(&borrow.borrow_date));
 				time_s.pop_back();
-				std::cout << time_s << std::endl;
+
+				std::cout << std::left << std::setw(15) << borrow.card_id << std::setw(15) << borrow.book_id << std::setw(30) << time_s << std::setw(30);
+				if (borrow.return_date == 0)
+					std::cout << "None" << std::endl;
+				else
+				{
+					time_s = std::ctime(&borrow.return_date);
+					time_s.pop_back();
+					std::cout << time_s << std::endl;
+				}
 			}
 			pos = borrowBpTree.iter(p);
 		}
@@ -856,14 +867,14 @@ void LibrarySystem::showCards()
 	p.v = 0;
 	unsigned long pos = cardBpTree.iter(p);
 	fin.open(cardDatasetFile, std::ios::in | std::ios::binary);
-	std::cout << "cardID" << std::setw(15) << "name" << std::setw(15) << "department" << std::setw(15) << "type" << std::endl;
+	std::cout << std::left << std::setw(15) << "cardID" << std::setw(15) << "name" << std::setw(15) << "department" << std::setw(15) << "type" << std::endl;
 	if (fin.is_open())
 	{
 		while (pos != -1)
 		{
 			fin.seekg(pos);
 			fin.read((char*)&card, sizeof card);
-			std::cout << card.card_id << std::setw(15) << card.user_name << std::setw(15) << card.department << std::setw(15) << card.type << std::endl;
+			std::cout << std::left << std::setw(15) << card.card_id << std::setw(15) << card.user_name << std::setw(15) << card.department << std::setw(15) << card.type << std::endl;
 			pos = cardBpTree.iter(p);
 		}
 		fin.close();
