@@ -230,17 +230,15 @@ void LibrarySystem::run()
 			break;
 		case 'c':
 		{
-			char na[50];
-			char dp[50];
+			char na[MAX_LEN];
+			char dp[MAX_LEN];
 			char id;
 			std::cout << "Enter your name:" << std::endl;
 			std::cout << ">> ";
-			std::cin.get(na, 50);
-			eatline();
+			std::cin.getline(na, MAX_LEN);
 			std::cout << "Enter your departure:" << std::endl;
 			std::cout << ">> ";
-			std::cin.get(dp, 50);
-			eatline();
+			std::cin.getline(dp, MAX_LEN);
 			std::cout << "Enter your identity:" << std::endl;
 			std::cout << ">> ";
 			std::cin >> id;
