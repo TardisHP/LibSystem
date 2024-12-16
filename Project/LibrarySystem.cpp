@@ -36,6 +36,7 @@ void message()
 		<< "c: regester a card\to: remove a card\tp: show all cards" << std::endl
 		<< "e: exit" << std::endl
 		<< "-------------------------------------------------------------" << std::endl;
+	std::cout << ">> ";
 }
 
 void LibrarySystem::run()
@@ -56,18 +57,25 @@ void LibrarySystem::run()
 		{
 			Book book;
 			std::cout << "Enter the book title:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.title, MAX_LEN);
 			std::cout << "Enter the book category:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.category, MAX_LEN);
 			std::cout << "Enter the book author:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.author, MAX_LEN);
 			std::cout << "Enter the book publisher:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.publisher, MAX_LEN);
 			std::cout << "Enter the book year:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> book.publish_year;
 			std::cout << "Enter the book price:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> book.price;
 			std::cout << "Enter the book stock:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> book.stock;
 			status = storeBook(book);
 			break;
@@ -76,8 +84,10 @@ void LibrarySystem::run()
 		{
 			int id, stock;
 			std::cout << "Enter the book id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> id;
 			std::cout << "Enter the delta stock:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> stock;
 			status = incBookStock(id, stock);
 			break;
@@ -86,6 +96,7 @@ void LibrarySystem::run()
 		{
 			int id;
 			std::cout << "Enter the book id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> id;
 			status = removeBook(id);
 			break;
@@ -94,19 +105,26 @@ void LibrarySystem::run()
 		{
 			Book book;
 			std::cout << "Enter the book id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> book.book_id;
 			eatline();
 			std::cout << "Enter the book title:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.title, MAX_LEN);
 			std::cout << "Enter the book category:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.category, MAX_LEN);
 			std::cout << "Enter the book author:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.author, MAX_LEN);
 			std::cout << "Enter the book publisher:" << std::endl;
+			std::cout << ">> ";
 			std::cin.getline(book.publisher, MAX_LEN);
 			std::cout << "Enter the book year:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> book.publish_year;
 			std::cout << "Enter the book price:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> book.price;
 			eatline();
 			status = modifyBookInfo(book);
@@ -122,6 +140,7 @@ void LibrarySystem::run()
 				<< "7: by price" << std::endl
 				<< "0: exit" << std::endl
 				<< "-------------------------------------------------------------" << std::endl;
+			std::cout << ">> ";
 			std::cin >> k;
 			eatline();
 			switch (k)
@@ -129,31 +148,39 @@ void LibrarySystem::run()
 			case 0:
 				break;
 			case 1:
+				std::cout << ">> id: ";
 				std::cin >> k;
 				eatline();
 				status = queryBook(books, k);
 				break;
 			case 2:
+				std::cout << ">> category: ";
 				std::cin >> str;
 				eatline();
 				status = queryBook(books, str, BY_CATEGORY);
 				break;
 			case 3:
-				std::cin >> str;
+				std::cout << ">> title: ";
+				std::cin.getline(str, MAX_LEN);
 				eatline();
 				status = queryBook(books, str, BY_TITLE);
 				break;
 			case 4:
+				std::cout << ">> publisher: ";
 				std::cin >> str;
 				eatline();
 				status = queryBook(books, str, BY_PUBLISHER);
 				break;
 			case 5:
-				std::cin >> k >> s;
+				std::cout << ">> year: ";
+				std::cin >> k;
+				std::cout << ">> to year: ";
+				std::cin >> s;
 				eatline();
 				status = queryBook(books, k, s);
 				break;
 			case 6:
+				std::cout << ">> author: ";
 				std::cin >> str;
 				eatline();
 				status = queryBook(books, str, BY_AUTHOR);
@@ -161,7 +188,10 @@ void LibrarySystem::run()
 			case 7:
 			{
 				float k, s;
-				std::cin >> k >> s;
+				std::cout << ">> price: ";
+				std::cin >> k;
+				std::cout << ">> to price: ";
+				std::cin >> s;
 				eatline();
 				status = queryBook(books, k, s);
 				break;
@@ -176,8 +206,10 @@ void LibrarySystem::run()
 		{
 			int cid, bid;
 			std::cout << "Enter the card id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> cid;
 			std::cout << "Enter the book id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> bid;
 			Borrow b(cid, bid);
 			status = borrowBook(b);
@@ -187,8 +219,10 @@ void LibrarySystem::run()
 		{
 			int cid, bid;
 			std::cout << "Enter the card id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> cid;
 			std::cout << "Enter the book id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> bid;
 			Borrow b(cid, bid);
 			status = returnBook(b);
@@ -203,12 +237,15 @@ void LibrarySystem::run()
 			char dp[50];
 			char id;
 			std::cout << "Enter your name:" << std::endl;
+			std::cout << ">> ";
 			std::cin.get(na, 50);
 			eatline();
 			std::cout << "Enter your departure:" << std::endl;
+			std::cout << ">> ";
 			std::cin.get(dp, 50);
 			eatline();
 			std::cout << "Enter your identity:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> id;
 			eatline();
 			Card card(na, dp, id);
@@ -219,6 +256,7 @@ void LibrarySystem::run()
 		{
 			int cid;
 			std::cout << "Enter the card id:" << std::endl;
+			std::cout << ">> ";
 			std::cin >> cid;
 			status = removeCard(cid);
 			break;
@@ -466,6 +504,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, int year_l, int year_r)
 					{
 						showInfo(books);
 						std::cout << "input 'q' to quit, else to continue" << std::endl;
+						std::cout << ">> ";
 						char c;
 						std::cin >> c;
 						eatline();
@@ -502,7 +541,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float pric
 			{
 				fin.seekg(pos);
 				fin.read((char*)&book, sizeof book);
-				if (book.publish_year >= price_l && book.publish_year <= price_r)
+				if (book.price >= price_l && book.price <= price_r)
 				{
 					books.push_back(book);
 					num++;
@@ -510,6 +549,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float pric
 					{
 						showInfo(books);
 						std::cout << "input 'q' to quit, else to continue" << std::endl;
+						std::cout << ">> ";
 						char c;
 						std::cin >> c;
 						eatline();
@@ -573,6 +613,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, const char* str, QUERY_TY
 				{
 					showInfo(books);
 					std::cout << "input 'q' to quit, else to continue" << std::endl;
+					std::cout << ">> ";
 					char c;
 					std::cin >> c;
 					eatline();
