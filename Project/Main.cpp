@@ -27,26 +27,38 @@ int main()
     //t2 = std::chrono::system_clock::now();
     //calTime(t1, t2);
 
+    //std::vector<Book> books;
     //t1 = std::chrono::system_clock::now();
-    //lib.queryBook(-2, -1);
+    //lib.queryBook(books, -2, -1);
     //t2 = std::chrono::system_clock::now();
     //calTime(t1, t2);
 
+    //std::vector<Book> books;
     //t1 = std::chrono::system_clock::now();
-    //lib.queryBook("-1", 0);
+    //lib.queryBook(books, "-1", 0);
     //t2 = std::chrono::system_clock::now();
     //calTime(t1, t2);
 
+    //std::vector<Book> books;
     //t1 = std::chrono::system_clock::now();
-    //lib.queryBook("-1", 1);
+    //lib.queryBook(books, "c++", BY_TITLE);
     //t2 = std::chrono::system_clock::now();
     //calTime(t1, t2);
 
-    std::vector<Book> books;
-    t1 = std::chrono::system_clock::now();
-    lib.queryBook(books, -1);
-    t2 = std::chrono::system_clock::now();
-    calTime(t1, t2);
+    //std::vector<int> ints(10000000);
+    //t1 = std::chrono::system_clock::now();
+    //for (int i : ints)
+    //{
+    //    i++;
+    //}
+    //t2 = std::chrono::system_clock::now();
+    //calTime(t1, t2);
+
+    //std::vector<Book> books;
+    //t1 = std::chrono::system_clock::now();
+    //lib.queryBook(books, -1);
+    //t2 = std::chrono::system_clock::now();
+    //calTime(t1, t2);
 
     //Book book("chinese history", "I231.9", "cuc", "cuc", 2003, 19.8);
     //book.stock = 5;

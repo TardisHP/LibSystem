@@ -15,8 +15,6 @@
 
 inline void eatline() { while (std::cin.get() != '\n') continue; }
 
-
-
 LibrarySystem::LibrarySystem(std::string bookTreeFile, std::string bookTreeNodeFile, 
 	std::string borrowTreeFile, std::string borrowTreeNodeFile,
 	std::string cardTreeFile, std::string cardTreeNodeFile,
@@ -110,6 +108,7 @@ void LibrarySystem::run()
 			std::cin >> book.publish_year;
 			std::cout << "Enter the book price:" << std::endl;
 			std::cin >> book.price;
+			eatline();
 			status = modifyBookInfo(book);
 			break;
 		}
@@ -466,6 +465,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, int year_l, int year_r)
 					if (num % 20 == 0 && num > 0)
 					{
 						showInfo(books);
+						std::cout << "input 'q' to quit, else to continue" << std::endl;
 						char c;
 						std::cin >> c;
 						eatline();
@@ -509,6 +509,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float pric
 					if (num % 20 == 0 && num > 0)
 					{
 						showInfo(books);
+						std::cout << "input 'q' to quit, else to continue" << std::endl;
 						char c;
 						std::cin >> c;
 						eatline();
@@ -547,19 +548,19 @@ int LibrarySystem::queryBook(std::vector<Book>& books, const char* str, QUERY_TY
 				fin.read((char*)&book, sizeof book);
 				switch (type)
 				{
-				case 0:
+				case BY_CATEGORY:
 					if (std::strcmp(book.category, str) != 0)
 						continue;
 					break;
-				case 1:
+				case BY_TITLE:
 					if (std::strstr(book.title, str) == nullptr)
 						continue;
 					break;
-				case 2:
+				case BY_PUBLISHER:
 					if (std::strstr(book.publisher, str) == nullptr)
 						continue;
 					break;
-				case 3:
+				case BY_AUTHOR:
 					if (std::strstr(book.author, str) == nullptr)
 						continue;
 					break;
@@ -595,6 +596,8 @@ int LibrarySystem::modifyBookInfo(Book _book)
 	unsigned long pos = bookBpTree.findPos(_book.book_id);
 	if (pos == -1)
 		return 401;
+	if (findSameBook(_book))
+		return 400;
 
 	Book book;
 	std::fstream finout;
