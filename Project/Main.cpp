@@ -42,10 +42,11 @@ int main()
     //t2 = std::chrono::system_clock::now();
     //calTime(t1, t2);
 
-    //t1 = std::chrono::system_clock::now();
-    //lib.queryBook(-1);
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
+    std::vector<Book> books;
+    t1 = std::chrono::system_clock::now();
+    lib.queryBook(books, -1);
+    t2 = std::chrono::system_clock::now();
+    calTime(t1, t2);
 
     //Book book("chinese history", "I231.9", "cuc", "cuc", 2003, 19.8);
     //book.stock = 5;

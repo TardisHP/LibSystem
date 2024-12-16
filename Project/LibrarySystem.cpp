@@ -13,13 +13,16 @@
 #include "Card.h"
 #include "Borrow.h"
 
+inline void eatline() { while (std::cin.get() != '\n') continue; }
+
+
+
 LibrarySystem::LibrarySystem(std::string bookTreeFile, std::string bookTreeNodeFile, 
 	std::string borrowTreeFile, std::string borrowTreeNodeFile,
 	std::string cardTreeFile, std::string cardTreeNodeFile,
-	std::string hashTreeFile, std::string hashTreeNodeFile
-	)
-	:bookBpTree(bookTreeFile, bookTreeNodeFile), borrowBpTree(borrowTreeFile, borrowTreeNodeFile), 
-	 cardBpTree(cardTreeFile, cardTreeNodeFile), hashBpTree(hashTreeFile, hashTreeNodeFile)
+	std::string hashTreeFile, std::string hashTreeNodeFile) 
+	: bookBpTree(bookTreeFile, bookTreeNodeFile), borrowBpTree(borrowTreeFile, borrowTreeNodeFile), 
+	  cardBpTree(cardTreeFile, cardTreeNodeFile), hashBpTree(hashTreeFile, hashTreeNodeFile)
 {
 	bookDatasetFile = "Dataset/bookDataset.dat";
 	borrowDatasetFile = "Dataset/borrowDataset.dat";
@@ -39,20 +42,21 @@ void message()
 
 void LibrarySystem::run()
 {
-	char c;
-	char str[50];
-	int k, s;
+	int status;	// 状态码
+	char input;	// 输入
+	std::vector<Book> books;
+
 	std::cout << "###        Welcome To XZL Library Management System       ###" << std::endl;
 	message();
-	while (std::cin >> c)
+	while (std::cin.get(input))
 	{
-		switch (c)
+		status = -1;
+		eatline();
+		switch (input)
 		{
 		case 's':
 		{
 			Book book;
-			char checking;
-			getchar();
 			std::cout << "Enter the book title:" << std::endl;
 			std::cin.getline(book.title, MAX_LEN);
 			std::cout << "Enter the book category:" << std::endl;
@@ -67,27 +71,33 @@ void LibrarySystem::run()
 			std::cin >> book.price;
 			std::cout << "Enter the book stock:" << std::endl;
 			std::cin >> book.stock;
-			storeBook(book);
+			status = storeBook(book);
 			break;
 		}
 		case 'i':
+		{
+			int id, stock;
 			std::cout << "Enter the book id:" << std::endl;
-			std::cin >> k;
+			std::cin >> id;
 			std::cout << "Enter the delta stock:" << std::endl;
-			std::cin >> s;
-			incBookStock(k, s);
+			std::cin >> stock;
+			status = incBookStock(id, stock);
 			break;
+		}
 		case 'r':
+		{
+			int id;
 			std::cout << "Enter the book id:" << std::endl;
-			std::cin >> k;
-			removeBook(k);
+			std::cin >> id;
+			status = removeBook(id);
 			break;
+		}
 		case 'm':
 		{
 			Book book;
 			std::cout << "Enter the book id:" << std::endl;
 			std::cin >> book.book_id;
-			getchar();
+			eatline();
 			std::cout << "Enter the book title:" << std::endl;
 			std::cin.getline(book.title, MAX_LEN);
 			std::cout << "Enter the book category:" << std::endl;
@@ -100,72 +110,89 @@ void LibrarySystem::run()
 			std::cin >> book.publish_year;
 			std::cout << "Enter the book price:" << std::endl;
 			std::cin >> book.price;
-			modifyBookInfo(book);
+			status = modifyBookInfo(book);
 			break;
 		}
 		case 'q':
+		{
+			int k, s;
+			char str[MAX_LEN];
 			std::cout << "-------------------------------------------------------------" << std::endl
 				<< "1: by id\t\t2: by category\t\t3: by title" << std::endl
 				<< "4: by publisher\t\t5: by year\t\t6: by author" << std::endl
 				<< "7: by price" << std::endl
-				<< "e: exit" << std::endl
+				<< "0: exit" << std::endl
 				<< "-------------------------------------------------------------" << std::endl;
 			std::cin >> k;
+			eatline();
 			switch (k)
 			{
+			case 0:
+				break;
 			case 1:
 				std::cin >> k;
-				queryBook(k);
+				eatline();
+				status = queryBook(books, k);
 				break;
 			case 2:
 				std::cin >> str;
-				queryBook(str, 0);
+				eatline();
+				status = queryBook(books, str, BY_CATEGORY);
 				break;
 			case 3:
 				std::cin >> str;
-				queryBook(str, 1);
+				eatline();
+				status = queryBook(books, str, BY_TITLE);
 				break;
 			case 4:
 				std::cin >> str;
-				queryBook(str, 2);
+				eatline();
+				status = queryBook(books, str, BY_PUBLISHER);
 				break;
 			case 5:
 				std::cin >> k >> s;
-				queryBook(k, s);
+				eatline();
+				status = queryBook(books, k, s);
 				break;
 			case 6:
 				std::cin >> str;
-				queryBook(str, 3);
+				eatline();
+				status = queryBook(books, str, BY_AUTHOR);
 				break;
 			case 7:
 			{
 				float k, s;
 				std::cin >> k >> s;
-				queryBook(k, s);
+				eatline();
+				status = queryBook(books, k, s);
 				break;
 			}
 			default:
+				std::cout << "wrong param!" << std::endl;
 				break;
 			}
 			break;
+		}
 		case 'b':
 		{
+			int cid, bid;
 			std::cout << "Enter the card id:" << std::endl;
-			std::cin >> s;
+			std::cin >> cid;
 			std::cout << "Enter the book id:" << std::endl;
-			std::cin >> k;
-			Borrow b(s, k);
-			borrowBook(b);
+			std::cin >> bid;
+			Borrow b(cid, bid);
+			status = borrowBook(b);
 			break;
 		}
 		case 't':
 		{
+			int cid, bid;
 			std::cout << "Enter the card id:" << std::endl;
-			std::cin >> s;
+			std::cin >> cid;
 			std::cout << "Enter the book id:" << std::endl;
-			std::cin >> k;
-			Borrow b(s, k);
-			returnBook(b);
+			std::cin >> bid;
+			Borrow b(cid, bid);
+			status = returnBook(b);
 			break;
 		}
 		case 'h':
@@ -175,21 +202,28 @@ void LibrarySystem::run()
 		{
 			char na[50];
 			char dp[50];
+			char id;
 			std::cout << "Enter your name:" << std::endl;
-			std::cin >> na;
+			std::cin.get(na, 50);
+			eatline();
 			std::cout << "Enter your departure:" << std::endl;
-			std::cin >> dp;
+			std::cin.get(dp, 50);
+			eatline();
 			std::cout << "Enter your identity:" << std::endl;
-			std::cin >> c;
-			Card card(na, dp, c);
-			registerCard(card);
+			std::cin >> id;
+			eatline();
+			Card card(na, dp, id);
+			status = registerCard(card);
 			break;
 		}
 		case 'o':
+		{
+			int cid;
 			std::cout << "Enter the card id:" << std::endl;
-			std::cin >> k;
-			removeCard(k);
+			std::cin >> cid;
+			status = removeCard(cid);
 			break;
+		}
 		case 'p':
 			showCards();
 			break;
@@ -197,6 +231,65 @@ void LibrarySystem::run()
 			return;
 		default:
 			std::cout << "wrong param!" << std::endl;
+			break;
+		}
+
+		switch (status)
+		{
+		case -1:
+			break;
+		case 100:
+			std::cout << "insert SUCCESS!" << std::endl;
+			break;
+		case 101:
+			break;
+		case 102:
+			std::cout << "modify SUCCESS!" << std::endl;
+			break;
+		case 103:
+			std::cout << "delete SUCCESS!" << std::endl;
+			break;
+		case 104:
+			std::cout << "stock change SUCCESS!" << std::endl;
+			break;
+		case 105:
+			std::cout << "borrow SUCCESS!" << std::endl;
+			break;
+		case 106:
+			std::cout << "return SUCCESS!" << std::endl;
+			break;
+		case 107:
+			std::cout << "register SUCCESS!" << std::endl;
+			break;
+		case 200:
+			std::cout << "query QUIT!" << std::endl;
+			break;
+		case 400:
+			std::cout << "REPEATED!" << std::endl;
+			break;
+		case 401:
+			std::cout << "query FAIL!" << std::endl;
+			break;
+		case 402:
+			std::cout << "delete FAIL!" << std::endl;
+			break;
+		case 403:
+			std::cout << "stock is ZERO!" << std::endl;
+			break;
+		case 404:
+			std::cout << "can NOT find the card!" << std::endl;
+			break;
+		case 405:
+			std::cout << "has been borrowed!" << std::endl;
+			break;
+		case 406:
+			std::cout << "has been returned!" << std::endl;
+			break;
+		case 407:
+			std::cout << "register FAIL!" << std::endl;
+			break;
+		default:
+			std::cout << "book [ " << status << " ] has been stored!"<< std::endl;
 			break;
 		}
 		message();
@@ -214,29 +307,23 @@ int LibrarySystem::findSameBook(Book& _book)
 	return 0;
 }
 
-void LibrarySystem::storeBook(Book& book)
+int LibrarySystem::storeBook(Book& book)
 {
 	std::fstream finout;
-	finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
+	finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary | std::ios::ate);
 	unsigned long v;
 	
-	std::cout << "Checking Book..." << std::endl;
 	if (findSameBook(book))
-	{
-		std::cout << "Book REPEATED!" << std::endl;
-		return;
-	}
+		return 400;
 
 	if (finout.is_open())
 	{
-		std::cout << "Storing Book..." << std::endl;
 		// 生成id
 		std::random_device rd;
 		std::mt19937 engine(rd());
-		std::uniform_int_distribution<int> dist(1, MAX_BOOK_NUM);
+		std::uniform_int_distribution<int> dist(1000, MAX_BOOK_NUM);
 		do
 		{
-			finout.seekp(0, std::ios::end);
 			v = finout.tellp();
 			book.book_id = dist(engine);
 		} while (bookBpTree.insertToLeaf(book.book_id, v) == 0);
@@ -251,7 +338,7 @@ void LibrarySystem::storeBook(Book& book)
 		finout.write((char*)&book, sizeof book);
 		finout.close();
 	}
-	std::cout << "Book[ " << book.book_id << " ]Stored!" << std::endl;
+	return book.book_id;
 }
 
 void split(const std::string& s, std::vector<std::string>& tokens, const std::string& delimiters = " ")
@@ -265,7 +352,7 @@ void split(const std::string& s, std::vector<std::string>& tokens, const std::st
 	}
 }
 
-void LibrarySystem::storeBooks(std::string path)
+int LibrarySystem::storeBooks(std::string path)
 {
 	std::fstream origin, finout;
 	origin.open(path, std::ios::in);
@@ -315,18 +402,10 @@ void LibrarySystem::storeBooks(std::string path)
 		origin.close();
 	}
 	std::cout << "Store finished!" << std::endl;
+	return 100;
 }
 
-void showInfo(Book& book)
-{
-	std::cout << "ID" << std::setw(20) << "category" << std::setw(20) << "title" << std::setw(15) << "author" << std::setw(15)
-		<< "publisher" << std::setw(15) << "year" << std::setw(10) << "price" << std::setw(10) << "stock" << std::endl;
-	std::cout << book.book_id << std::setw(20) << book.category << std::setw(20) << book.title << std::setw(15) << book.author << std::setw(15)
-		<< book.publisher << std::setw(15) << book.publish_year << std::setw(10) << book.price << std::setw(10) << book.stock << std::endl;
-	std::cout << std::endl;
-}
-
-void showInfo(std::vector<Book>& books)
+void LibrarySystem::showInfo(std::vector<Book>& books)
 {
 	if (books.empty())
 		std::cout << "can NOT find!" << std::endl;
@@ -340,35 +419,32 @@ void showInfo(std::vector<Book>& books)
 				<< book.publisher << std::setw(15) << book.publish_year << std::setw(10) << book.price << std::setw(10) << book.stock << std::endl;
 		}
 		std::cout << std::endl;
+		books.clear();
 	}
 }
 
-void LibrarySystem::queryBook(int k)
+int LibrarySystem::queryBook(std::vector<Book>& books, int k)
 {
 	Book book;
 	unsigned long v = bookBpTree.findPos(k);
 	if (v == -1)
-	{
-		std::cout << "Book [ " << k << " ] can NOT find!" << std::endl;
-		return;
-	}
+		return 401;
 	std::fstream fin;
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
 		fin.seekg(v);
 		fin.read((char*)&book, sizeof book);
-		showInfo(book);
-		if (fin.eof())
-			fin.clear();
+		books.push_back(book);
+		showInfo(books);
 		fin.close();
 	}
+	return 101;
 }
 
-void LibrarySystem::queryBook(int year_l, int year_r)
+int LibrarySystem::queryBook(std::vector<Book>& books, int year_l, int year_r)
 {
 	std::fstream fin;
-	std::vector<Book> books;
 	std::vector<unsigned long> poses;
 	unsigned long p = bookBpTree.head;
 	poses = bookBpTree.iter(p);
@@ -390,13 +466,13 @@ void LibrarySystem::queryBook(int year_l, int year_r)
 					if (num % 20 == 0 && num > 0)
 					{
 						showInfo(books);
-						books.clear();
 						char c;
 						std::cin >> c;
+						eatline();
 						if (c == 'q')
 						{
 							fin.close();
-							return;
+							return 200;
 						}
 					}
 				}
@@ -406,12 +482,12 @@ void LibrarySystem::queryBook(int year_l, int year_r)
 		fin.close();
 	}
 	showInfo(books);
+	return 101;
 }
 
-void LibrarySystem::queryBook(float price_l, float price_r)
+int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float price_r)
 {
 	std::fstream fin;
-	std::vector<Book> books;
 	std::vector<unsigned long> poses;
 	unsigned long p = bookBpTree.head;
 	poses = bookBpTree.iter(p);
@@ -433,13 +509,13 @@ void LibrarySystem::queryBook(float price_l, float price_r)
 					if (num % 20 == 0 && num > 0)
 					{
 						showInfo(books);
-						books.clear();
 						char c;
 						std::cin >> c;
+						eatline();
 						if (c == 'q')
 						{
 							fin.close();
-							return;
+							return 200;
 						}
 					}
 				}
@@ -449,12 +525,12 @@ void LibrarySystem::queryBook(float price_l, float price_r)
 		fin.close();
 	}
 	showInfo(books);
+	return 101;
 }
 
-void LibrarySystem::queryBook(const char* str, int type)
+int LibrarySystem::queryBook(std::vector<Book>& books, const char* str, QUERY_TYPE type)
 {
 	std::fstream fin;
-	std::vector<Book> books;
 	std::vector<unsigned long> poses;
 	unsigned long p = bookBpTree.head;
 	poses = bookBpTree.iter(p);
@@ -472,83 +548,38 @@ void LibrarySystem::queryBook(const char* str, int type)
 				switch (type)
 				{
 				case 0:
-					if (std::strcmp(book.category, str) == 0)
-					{
-						books.push_back(book);
-						num++;
-						if (num % 20 == 0 && num > 0)
-						{
-							showInfo(books);
-							books.clear();
-							char c;
-							std::cin >> c;
-							if (c == 'q')
-							{
-								fin.close();
-								return;
-							}
-						}
-					}
+					if (std::strcmp(book.category, str) != 0)
+						continue;
 					break;
 				case 1:
-					if (std::strstr(book.title, str))
-					{
-						books.push_back(book);
-						num++;
-						if (num % 20 == 0 && num > 0)
-						{
-							showInfo(books);
-							books.clear();
-							char c;
-							std::cin >> c;
-							if (c == 'q')
-							{
-								fin.close();
-								return;
-							}
-						}
-					}
+					if (std::strstr(book.title, str) == nullptr)
+						continue;
 					break;
 				case 2:
-					if (std::strstr(book.publisher, str))
-					{
-						books.push_back(book);
-						num++;
-						if (num % 20 == 0 && num > 0)
-						{
-							showInfo(books);
-							books.clear();
-							char c;
-							std::cin >> c;
-							if (c == 'q')
-							{
-								fin.close();
-								return;
-							}
-						}
-					}
+					if (std::strstr(book.publisher, str) == nullptr)
+						continue;
 					break;
 				case 3:
-					if (std::strstr(book.author, str))
-					{
-						books.push_back(book);
-						num++;
-						if (num % 20 == 0 && num > 0)
-						{
-							showInfo(books);
-							books.clear();
-							char c;
-							std::cin >> c;
-							if (c == 'q')
-							{
-								fin.close();
-								return;
-							}
-						}
-					}
+					if (std::strstr(book.author, str) == nullptr)
+						continue;
 					break;
 				default:
 					break;
+				}
+				books.push_back(book);
+				num++;
+				if (num % 20 == 0 && num > 0)
+				{
+					showInfo(books);
+					std::cout << "input 'q' to quit, else to continue" << std::endl;
+					char c;
+					std::cin >> c;
+					eatline();
+					if (c == 'q')
+					{
+						fin.close();
+						return 200;
+					}
 				}
 			}
 			poses = bookBpTree.iter(p);
@@ -556,16 +587,14 @@ void LibrarySystem::queryBook(const char* str, int type)
 		fin.close();
 	}
 	showInfo(books);
+	return 101;
 }
 
-void LibrarySystem::modifyBookInfo(Book _book)
+int LibrarySystem::modifyBookInfo(Book _book)
 {
 	unsigned long pos = bookBpTree.findPos(_book.book_id);
 	if (pos == -1)
-	{
-		std::cout << "can NOT find the book" << std::endl;
-		return;
-	}
+		return 401;
 
 	Book book;
 	std::fstream finout;
@@ -584,15 +613,15 @@ void LibrarySystem::modifyBookInfo(Book _book)
 		finout.write((char*)&book, sizeof book);
 		finout.close();
 	}
-	std::cout << "Book[ " << book.book_id << " ] has been modified" << std::endl;
+	return 102;
 }
 
-void LibrarySystem::removeBook(int k)
+int LibrarySystem::removeBook(int k)
 {
 	if (bookBpTree.deleteLeaf(k))
-		std::cout << "Book[ " << k << " ] has been deleted" << std::endl;
+		return 103;
 	else
-		std::cout << "Book[ " << k << " ] delete FAILED!" << std::endl;
+		return 402;
 }
 
 int LibrarySystem::incBookStock(int k, int deltaStock)
@@ -600,10 +629,8 @@ int LibrarySystem::incBookStock(int k, int deltaStock)
 	Book book;
 	unsigned long pos = bookBpTree.findPos(k);
 	if (pos == -1)
-	{
-		std::cout << "Book [ " << k << " ] can NOT find!" << std::endl;
-		return 0;
-	}
+		return 401;
+
 	std::fstream finout;
 	finout.open(bookDatasetFile, std::ios::in | std::ios::out | std::ios::binary);
 	if (finout.is_open())
@@ -613,25 +640,20 @@ int LibrarySystem::incBookStock(int k, int deltaStock)
 		book.stock += deltaStock;
 		if (book.stock < 0)
 		{
-			std::cout << "Book [ " << k << " ] is out of stock!" << std::endl;
 			finout.close();
-			return 0;
+			return 403;
 		}
 		finout.seekp(pos);
 		finout.write((char*)&book, sizeof book);
 		finout.close();
 	}
-	std::cout << "Book[ " << book.book_id << " " << book.title << " ]'s stock has been changed to " << book.stock << std::endl;
-	return 1;
+	return 104;
 }
 
-void LibrarySystem::borrowBook(Borrow& borrow)
+int LibrarySystem::borrowBook(Borrow& borrow)
 {
 	if (cardBpTree.findPos(borrow.card_id) == -1)
-	{
-		std::cout << "Card is illegal!" << std::endl;
-		return;
-	}
+		return 404;
 
 	unsigned long pos;
 	std::fstream finout;
@@ -640,20 +662,17 @@ void LibrarySystem::borrowBook(Borrow& borrow)
 	{
 		if (borrowBpTree.findPos(borrow.borrow_id) != -1)
 		{
-			std::cout << "Book[ " << borrow.book_id << " ] has been borrowed by " << borrow.card_id << std::endl;
 			finout.close();
-			return;
+			return 405;
 		}
 		// 检查库存
 		if (incBookStock(borrow.book_id, -1) == 0)
 		{
-			std::cout << "Borrow FAILED!"<< std::endl;
 			finout.close();
-			return;
+			return 403;
 		}
 		finout.seekp(0, std::ios::end);
 		pos = finout.tellp();
-		// std::cout << "Borrowing Book..." << std::endl;
 		// 获取时间
 		auto now = std::chrono::system_clock::now();
 		std::time_t now_c = std::chrono::system_clock::to_time_t(now);
@@ -662,16 +681,13 @@ void LibrarySystem::borrowBook(Borrow& borrow)
 		borrowBpTree.insertToLeaf(borrow.borrow_id, pos);
 		finout.close();
 	}
-	std::cout << "Borrow SUCCESSED!" << std::endl;
+	return 105;
 }
 
-void LibrarySystem::returnBook(Borrow& borrow)
+int LibrarySystem::returnBook(Borrow& borrow)
 {
 	if (cardBpTree.findPos(borrow.card_id) == -1)
-	{
-		std::cout << "Card is illegal!" << std::endl;
-		return;
-	}
+		return 404;
 
 	unsigned long pos = borrowBpTree.findPos(borrow.borrow_id);
 	std::fstream finout;
@@ -680,9 +696,8 @@ void LibrarySystem::returnBook(Borrow& borrow)
 	{
 		if (pos == -1)
 		{
-			std::cout << "Return FAILED!" << std::endl;
 			finout.close();
-			return;
+			return 401;
 		}
 		Borrow btmp;
 		finout.seekg(pos);
@@ -690,9 +705,8 @@ void LibrarySystem::returnBook(Borrow& borrow)
 		// std::cout << "Borrowing Book..." << std::endl;
 		if (btmp.return_date != 0)
 		{
-			std::cout << "Has been returned!" << std::endl;
 			finout.close();
-			return;
+			return 406;
 		}
 		// 获取时间
 		auto now = std::chrono::system_clock::now();
@@ -704,6 +718,7 @@ void LibrarySystem::returnBook(Borrow& borrow)
 		finout.close();
 	}
 	std::cout << "Return SUCCESSED!" << std::endl;
+	return 106;
 }
 
 void LibrarySystem::showBorrowHistory(int cardId)
@@ -741,18 +756,14 @@ void LibrarySystem::showBorrowHistory(int cardId)
 	std::cout << std::endl;
 }
 
-void LibrarySystem::registerCard(Card& card)
+int LibrarySystem::registerCard(Card& card)
 {
 	if (card.card_id != -1)
-	{
-		std::cout << "Card has been registed!" << std::endl;
-		return;
-	}
+		return 407;
+
 	if (card.user_name[0] == '\0')
-	{
-		std::cout << "Card has problem" << std::endl;
-		return;
-	}
+		return 407;
+
 	std::fstream finout;
 	Card ctmp;
 	Pair p;
@@ -768,9 +779,8 @@ void LibrarySystem::registerCard(Card& card)
 			finout.read((char*)&ctmp, sizeof ctmp);
 			if (strcmp(ctmp.user_name, card.user_name) == 0 && strcmp(ctmp.department, card.department) == 0 && ctmp.type == card.type)
 			{
-				std::cout << "Card has been registered!" << std::endl;
 				finout.close();
-				return;
+				return 400;
 			}
 			pos = cardBpTree.iter(p);
 		}
@@ -787,15 +797,15 @@ void LibrarySystem::registerCard(Card& card)
 		finout.write((char*)&card, sizeof card);
 		finout.close();
 	}
-	std::cout << "Card register SUCCESS!" << std::endl;
+	return 107;
 }
 
-void LibrarySystem::removeCard(int cardId)
+int LibrarySystem::removeCard(int cardId)
 {
 	if (cardBpTree.deleteLeaf(cardId))
-		std::cout << "Card[ " << cardId << " ] has been removed" << std::endl;
+		return 103;
 	else
-		std::cout << "Card[ " << cardId << " ] remove FAILED!" << std::endl;
+		return 402;
 }
 
 void LibrarySystem::showCards()

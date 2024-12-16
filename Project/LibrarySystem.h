@@ -11,6 +11,8 @@
 
 #define MAX_BOOK_NUM 15000000
 
+enum QUERY_TYPE { BY_CATEGORY, BY_TITLE, BY_PUBLISHER, BY_AUTHOR };
+
 class LibrarySystem
 {
 public:
@@ -19,20 +21,20 @@ public:
 		std::string cardTreeFile = "Dataset/cardTree.dat", std::string cardTreeNodeFile = "Dataset/cardTreeNode.dat",
 		std::string hashTreeFile = "Dataset/hashTree.dat", std::string hashTreeNodeFile = "Dataset/hashTreeNode.dat");
 	void run();
-	void storeBook(Book& book);
-	void storeBooks(std::string path);
-	void queryBook(int k);
-	void queryBook(int year_l, int year_r);
-	void queryBook(float price_l, float price_r);
-	void queryBook(const char* str, int type);
-	void removeBook(int k);
+	int storeBook(Book& book);
+	int storeBooks(std::string path);
+	int queryBook(std::vector<Book>& books, int k);
+	int queryBook(std::vector<Book>& books, int year_l, int year_r);
+	int queryBook(std::vector<Book>& books, float price_l, float price_r);
+	int queryBook(std::vector<Book>& books, const char* str, QUERY_TYPE type);
+	int removeBook(int k);
 	int incBookStock(int k, int deltaStock);
-	void modifyBookInfo(Book _book);
-	void borrowBook(Borrow& borrow);
-	void returnBook(Borrow& borrow);
+	int modifyBookInfo(Book _book);
+	int borrowBook(Borrow& borrow);
+	int returnBook(Borrow& borrow);
 	void showBorrowHistory(int cardId);
-	void registerCard(Card& card);
-	void removeCard(int cardId);
+	int registerCard(Card& card);
+	int removeCard(int cardId);
 	void showCards();
 private:
 	// Í¼Êé¿â
@@ -56,6 +58,7 @@ private:
 	BpTree hashBpTree;
 
 	int findSameBook(Book& _book);
+	void showInfo(std::vector<Book>& books);
 };
 
 #endif // !_LIBRARY_SYSTEM_H
