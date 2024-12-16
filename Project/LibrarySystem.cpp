@@ -166,8 +166,7 @@ void LibrarySystem::run()
 				break;
 			case 4:
 				std::cout << ">> publisher: ";
-				std::cin >> str;
-				eatline();
+				std::cin.getline(str, MAX_LEN);
 				status = queryBook(books, str, BY_PUBLISHER);
 				break;
 			case 5:
@@ -180,8 +179,7 @@ void LibrarySystem::run()
 				break;
 			case 6:
 				std::cout << ">> author: ";
-				std::cin >> str;
-				eatline();
+				std::cin.getline(str, MAX_LEN);
 				status = queryBook(books, str, BY_AUTHOR);
 				break;
 			case 7:
@@ -447,12 +445,12 @@ void LibrarySystem::showInfo(std::vector<Book>& books)
 		std::cout << "can NOT find!" << std::endl;
 	else
 	{
-		std::cout << "ID" << std::setw(20) << "category" << std::setw(20) << "title" << std::setw(15) << "author" << std::setw(15)
-			<< "publisher" << std::setw(15) << "year" << std::setw(10) << "price" << std::setw(10) << "stock" << std::endl;
+		std::cout << std::left << std::setw(15) << "ID" << std::setw(15) << "category" << std::setw(20) << "title" << std::setw(15) << "author" << std::setw(15)
+			<< "publisher" << std::setw(10) << "year" << std::setw(10) << "price" << std::setw(10) << "stock" << std::endl;
 		for (auto& book : books)
 		{
-			std::cout << book.book_id << std::setw(20) << book.category << std::setw(20) << book.title << std::setw(15) << book.author << std::setw(15)
-				<< book.publisher << std::setw(15) << book.publish_year << std::setw(10) << book.price << std::setw(10) << book.stock << std::endl;
+			std::cout << std::left << std::setw(15) << book.book_id << std::setw(15) << book.category << std::setw(20) << book.title << std::setw(15) << book.author << std::setw(15)
+				<< book.publisher << std::setw(10) << book.publish_year << std::setw(10) << book.price << std::setw(10) << book.stock << std::endl;
 		}
 		std::cout << std::endl;
 		books.clear();
