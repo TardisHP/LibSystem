@@ -162,7 +162,6 @@ void LibrarySystem::run()
 			case 3:
 				std::cout << ">> title: ";
 				std::cin.getline(str, MAX_LEN);
-				eatline();
 				status = queryBook(books, str, BY_TITLE);
 				break;
 			case 4:
