@@ -38,7 +38,29 @@ void message()
 		<< "c: regester a card\to: remove a card\tp: show all cards" << std::endl
 		<< "e: exit" << std::endl
 		<< "-------------------------------------------------------------" << std::endl;
-	std::cout << ">> ";
+}
+
+template <typename T>
+int getValidatedInput(const std::string& prompt, T& val)
+{
+	while (true) {
+		std::cout << prompt;
+		std::cin >> val;
+		// 检查输入是否成功
+		if (std::cin.fail()) 
+		{
+			std::cin.clear();
+			// 忽略剩余的输入直到换行符
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			std::cout << "wrong param" << std::endl;
+		}
+		else 
+		{
+			// 忽略剩余的输入直到换行符，防止多余输入影响下次读取
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			return 1;
+		}
+	}
 }
 
 void LibrarySystem::run()
@@ -49,10 +71,9 @@ void LibrarySystem::run()
 
 	std::cout << "###        Welcome To XZL Library Management System       ###" << std::endl;
 	message();
-	while (std::cin.get(input))
+	while (getValidatedInput<char>(">> ", input))
 	{
 		status = -1;
-		eatline();
 		switch (input)
 		{
 		case 's':
@@ -71,15 +92,11 @@ void LibrarySystem::run()
 			std::cout << ">> ";
 			std::cin.getline(book.publisher, MAX_LEN);
 			std::cout << "Enter the book year:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> book.publish_year;
+			getValidatedInput<int>(">> ", book.publish_year);
 			std::cout << "Enter the book price:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> book.price;
+			getValidatedInput<float>(">> ", book.price);
 			std::cout << "Enter the book stock:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> book.stock;
-			eatline();
+			getValidatedInput<int>(">> ", book.stock);
 			status = storeBook(book);
 			break;
 		}
@@ -87,12 +104,9 @@ void LibrarySystem::run()
 		{
 			int id, stock;
 			std::cout << "Enter the book id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> id;
+			getValidatedInput<int>(">> ", id);
 			std::cout << "Enter the delta stock:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> stock;
-			eatline();
+			getValidatedInput<int>(">> ", stock);
 			status = incBookStock(id, stock);
 			break;
 		}
@@ -100,9 +114,7 @@ void LibrarySystem::run()
 		{
 			int id;
 			std::cout << "Enter the book id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> id;
-			eatline();
+			getValidatedInput<int>(">> ", id);
 			status = removeBook(id);
 			break;
 		}
@@ -110,9 +122,7 @@ void LibrarySystem::run()
 		{
 			Book book;
 			std::cout << "Enter the book id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> book.book_id;
-			eatline();
+			getValidatedInput<int>(">> ", book.book_id);
 			std::cout << "Enter the book title:" << std::endl;
 			std::cout << ">> ";
 			std::cin.getline(book.title, MAX_LEN);
@@ -126,12 +136,9 @@ void LibrarySystem::run()
 			std::cout << ">> ";
 			std::cin.getline(book.publisher, MAX_LEN);
 			std::cout << "Enter the book year:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> book.publish_year;
+			getValidatedInput<int>(">> ", book.publish_year);
 			std::cout << "Enter the book price:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> book.price;
-			eatline();
+			getValidatedInput<float>(">> ", book.price);
 			status = modifyBookInfo(book);
 			break;
 		}
@@ -145,17 +152,13 @@ void LibrarySystem::run()
 				<< "7: by price" << std::endl
 				<< "0: exit" << std::endl
 				<< "-------------------------------------------------------------" << std::endl;
-			std::cout << ">> ";
-			std::cin >> k;
-			eatline();
+			getValidatedInput<int>(">> ", k);
 			switch (k)
 			{
 			case 0:
 				break;
 			case 1:
-				std::cout << ">> id: ";
-				std::cin >> k;
-				eatline();
+				getValidatedInput<int>(">> id: ", k);
 				status = queryBook(books, k);
 				break;
 			case 2:
@@ -175,11 +178,8 @@ void LibrarySystem::run()
 				status = queryBook(books, str, BY_PUBLISHER);
 				break;
 			case 5:
-				std::cout << ">> year: ";
-				std::cin >> k;
-				std::cout << ">> to year: ";
-				std::cin >> s;
-				eatline();
+				getValidatedInput<int>(">> year: ", k);
+				getValidatedInput<int>(">> to year: ", s);
 				status = queryBook(books, k, s);
 				break;
 			case 6:
@@ -190,11 +190,8 @@ void LibrarySystem::run()
 			case 7:
 			{
 				float k, s;
-				std::cout << ">> price: ";
-				std::cin >> k;
-				std::cout << ">> to price: ";
-				std::cin >> s;
-				eatline();
+				getValidatedInput<float>(">> price: ", k);
+				getValidatedInput<float>(">> to price: ", s);
 				status = queryBook(books, k, s);
 				break;
 			}
@@ -208,12 +205,9 @@ void LibrarySystem::run()
 		{
 			int cid, bid;
 			std::cout << "Enter the card id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> cid;
+			getValidatedInput<int>(">> ", cid);
 			std::cout << "Enter the book id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> bid;
-			eatline();
+			getValidatedInput<int>(">> ", bid);
 			Borrow b(cid, bid);
 			status = borrowBook(b);
 			break;
@@ -222,12 +216,9 @@ void LibrarySystem::run()
 		{
 			int cid, bid;
 			std::cout << "Enter the card id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> cid;
+			getValidatedInput<int>(">> ", cid);
 			std::cout << "Enter the book id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> bid;
-			eatline();
+			getValidatedInput<int>(">> ", bid);
 			Borrow b(cid, bid);
 			status = returnBook(b);
 			break;
@@ -235,9 +226,7 @@ void LibrarySystem::run()
 		case 'h':
 			int cid, bid;
 			std::cout << "Enter the card id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> cid;
-			eatline();
+			getValidatedInput<int>(">> ", cid);
 			showBorrowHistory(cid);
 			break;
 		case 'c':
@@ -252,9 +241,7 @@ void LibrarySystem::run()
 			std::cout << ">> ";
 			std::cin.getline(dp, MAX_LEN);
 			std::cout << "Enter your identity (S/T):" << std::endl;
-			std::cout << ">> ";
-			std::cin >> id;
-			eatline();
+			getValidatedInput<char>(">> ", id);
 			Card card(na, dp, id);
 			status = registerCard(card);
 			break;
@@ -263,9 +250,7 @@ void LibrarySystem::run()
 		{
 			int cid;
 			std::cout << "Enter the card id:" << std::endl;
-			std::cout << ">> ";
-			std::cin >> cid;
-			eatline();
+			getValidatedInput<int>(">> ", cid);
 			status = removeCard(cid);
 			break;
 		}
