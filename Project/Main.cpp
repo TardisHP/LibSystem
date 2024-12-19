@@ -7,17 +7,19 @@
 #include "LibrarySystem.h"
 #include "Book.h"
 
+//std::fstream calfile;
 
 void calTime(std::chrono::system_clock::time_point t1, std::chrono::system_clock::time_point t2)
 {
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
     auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(fp_ms);
     std::cout << "took " << fp_ms.count() << " ms" << std::endl;
+    //calfile << fp_ms.count() << std::endl;
 }
 
 int main()
 {
-    
+    //calfile.open("cal.txt", std::ios::in | std::ios::out);
 
     auto t1 = std::chrono::system_clock::now();
     LibrarySystem lib;
@@ -27,10 +29,10 @@ int main()
     //t1 = std::chrono::system_clock::now();
     //lib.storeBooks("Dataset/addList_1t.dat");
     //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
+    ////calTime(t1, t2);
 
-    std::cout << std::endl;
-    for (int i = 0; i < 1; i++)
+    /*std::cout << std::endl;
+    for (int i = 0; i < 50; i++)
     {
         std::vector<Book> books;
         t1 = std::chrono::system_clock::now();
@@ -40,7 +42,7 @@ int main()
     }
 
     std::cout << std::endl;
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 50; i++)
     {
         std::vector<Book> books;
         t1 = std::chrono::system_clock::now();
@@ -50,24 +52,24 @@ int main()
     }
 
     std::cout << std::endl;
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 50; i++)
     {
         std::vector<Book> books;
         t1 = std::chrono::system_clock::now();
         lib.queryBook(books, "qwerqwrqwrqw", BY_TITLE);
         t2 = std::chrono::system_clock::now();
         calTime(t1, t2);
-    }
+    }*/
 
-    std::cout << std::endl;
-    for (int i = 0; i < 15; i++)
-    {
-        std::vector<Book> books;
-        t1 = std::chrono::system_clock::now();
-        lib.queryBook(books, -1);
-        t2 = std::chrono::system_clock::now();
-        calTime(t1, t2);
-    }
+    //std::cout << std::endl;
+    //for (int i = 0; i < 50; i++)
+    //{
+    //    std::vector<Book> books;
+    //    t1 = std::chrono::system_clock::now();
+    //    lib.queryBook(books, -1);
+    //    t2 = std::chrono::system_clock::now();
+    //    calTime(t1, t2);
+    //}
 
     //std::cout << std::endl;
     //for (int i = 0; i < 15; i++)
@@ -93,4 +95,6 @@ int main()
     //}
 
     lib.run();
+
+    //calfile.close();
 }

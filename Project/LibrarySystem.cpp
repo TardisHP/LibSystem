@@ -333,6 +333,9 @@ void LibrarySystem::run()
 		case 407:
 			std::cout << "register FAIL!" << std::endl;
 			break;
+		case 408:
+			std::cout << "delete FAIL! There is a record of borrowed books that have not been returned!" << std::endl;
+			break;
 		default:
 			std::cout << "book [ " << status << " ] has been stored!"<< std::endl;
 			break;
@@ -453,7 +456,7 @@ int LibrarySystem::storeBooks(std::string path)
 int LibrarySystem::showInfo(std::vector<Book>& books)
 {
 	if (books.empty())
-		std::cout << "can NOT find!" << std::endl;
+		return 0;
 	else
 	{
 		std::cout << std::left << std::setw(15) << "ID" << std::setw(15) << "category" << std::setw(20) << "title" << std::setw(15) << "author" << std::setw(15)
@@ -497,9 +500,10 @@ int LibrarySystem::queryBook(std::vector<Book>& books, int k)
 		fin.seekg(v);
 		fin.read((char*)&book, sizeof book);
 		books.push_back(book);
-		showInfo(books);
 		fin.close();
 	}
+	if (!showInfo(books))
+		return 401;
 	return 101;
 }
 
@@ -538,7 +542,8 @@ int LibrarySystem::queryBook(std::vector<Book>& books, int year_l, int year_r)
 		}
 		fin.close();
 	}
-	showInfo(books);
+	if (!showInfo(books))
+		return 401;
 	return 101;
 }
 
@@ -577,7 +582,8 @@ int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float pric
 		}
 		fin.close();
 	}
-	showInfo(books);
+	if (!showInfo(books))
+		return 401;
 	return 101;
 }
 
@@ -631,54 +637,12 @@ int LibrarySystem::queryBook(std::vector<Book>& books, const char* str, QUERY_TY
 					}
 				}
 			}
-
-			/*for (unsigned long pos : poses)
-			{
-				fin.seekg(pos);
-				fin.read((char*)&book, sizeof book);
-				switch (type)
-				{
-				case BY_CATEGORY:
-					if (std::strcmp(book.category, str) != 0)
-						continue;
-					break;
-				case BY_TITLE:
-					if (std::strstr(book.title, str) == nullptr)
-						continue;
-					break;
-				case BY_PUBLISHER:
-					if (std::strstr(book.publisher, str) == nullptr)
-						continue;
-					break;
-				case BY_AUTHOR:
-					if (std::strstr(book.author, str) == nullptr)
-						continue;
-					break;
-				default:
-					break;
-				}
-				books.push_back(book);
-				num++;
-				if (num % 20 == 0 && num > 0)
-				{
-					showInfo(books);
-					std::cout << "input 'q' to quit, else to continue" << std::endl;
-					std::cout << ">> ";
-					char c;
-					std::cin >> c;
-					eatline();
-					if (c == 'q')
-					{
-						fin.close();
-						return 200;
-					}
-				}
-			}*/
 			poses = bookBpTree.iter(p);
 		}
 		fin.close();
 	}
-	showInfo(books);
+	if (!showInfo(books))
+		return 401;
 	return 101;
 }
 
@@ -899,6 +863,31 @@ int LibrarySystem::registerCard(Card& card)
 
 int LibrarySystem::removeCard(int cardId)
 {
+	Borrow borrow;
+	std::fstream fin;
+	std::vector<unsigned long> poses;
+	unsigned long p = bookBpTree.head;
+	poses = borrowBpTree.iter(p);
+	fin.open(borrowDatasetFile, std::ios::in | std::ios::binary);
+	if (fin.is_open())
+	{
+		int num = 0;
+		while (!poses.empty())
+		{
+			for (unsigned long pos : poses)
+			{
+				fin.seekg(pos);
+				fin.read((char*)&borrow, sizeof borrow);
+				if (borrow.card_id == cardId && borrow.return_date == 0)
+				{
+					fin.close();
+					return 408;
+				}
+			}
+			poses = borrowBpTree.iter(p);
+		}
+		fin.close();
+	}
 	if (cardBpTree.deleteLeaf(cardId))
 		return 103;
 	else
