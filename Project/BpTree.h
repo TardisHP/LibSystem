@@ -4,7 +4,7 @@
 #include <fstream>
 #include <vector>
 
-#define PAGE_SIZE 4096
+#define PAGE_SIZE 4096     // 4K
 #define MAX_LEAF 256
 
 struct Pair

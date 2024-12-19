@@ -15,6 +15,7 @@ void calTime(std::chrono::system_clock::time_point t1, std::chrono::system_clock
     std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
     auto int_ms = std::chrono::duration_cast<std::chrono::milliseconds>(fp_ms);
     std::cout << "took " << fp_ms.count() << " ms" << std::endl;
+    //std::cout << fp_ms.count() << std::endl;
 }
 
 BOOL WINAPI ConsoleHandler(DWORD ctrlType) {
@@ -35,47 +36,87 @@ int main()
     auto t2 = std::chrono::system_clock::now();
     calTime(t1, t2);
 
+    //int offset = 0;
+    //offset += sizeof(bool);
+    //offset += sizeof(int);
+    //for (int i = 0; i < MAX_LEAF; i++)
+    //{
+    //    offset += sizeof(int);
+    //}
+    //for (int i = 0; i < MAX_LEAF; i++)
+    //{
+    //    offset += sizeof(unsigned long);
+    //}
+    //offset += sizeof(unsigned long);
+    //offset += sizeof(unsigned long);
+    //std::cout << offset << std::endl;
+
+    //class BookTmp
+    //{
+    //public:
+    //    int book_id;				//书号
+    //    char title[MAX_LEN];		//书名
+    //    char category[MAX_LEN];		//类别
+    //    char author[MAX_LEN];		//作者
+    //    char publisher[MAX_LEN];	//出版社
+    //    int publish_year;			//年份
+    //    float price;				//价格
+    //    int stock;					//剩余库存
+    //};
     //t1 = std::chrono::system_clock::now();
-    //lib.storeBooks("Dataset/addList_1t.dat");
+    //BookTmp tmp;
+    //std::fstream file;
+    //file.open("test.dat", std::ios::in | std::ios::binary);
+    //unsigned long offset = 0;
+    //for (int i = 0; i < 10000000; i++)
+    //{
+    //    file.seekg(offset);
+    //    file.read((char*)&tmp, sizeof tmp);
+    //    if (std::strstr(tmp.title, "qwerqwrqwrqw") != nullptr)
+    //        ;
+    //    offset += sizeof tmp;
+    //}
     //t2 = std::chrono::system_clock::now();
-    ////calTime(t1, t2);
+    //calTime(t1, t2);
 
-    /*std::cout << std::endl;
-    for (int i = 0; i < 50; i++)
-    {
-        std::vector<Book> books;
-        t1 = std::chrono::system_clock::now();
-        lib.queryBook(books, -2, -1);
-        t2 = std::chrono::system_clock::now();
-        calTime(t1, t2);
-    }
-
-    std::cout << std::endl;
-    for (int i = 0; i < 50; i++)
-    {
-        std::vector<Book> books;
-        t1 = std::chrono::system_clock::now();
-        lib.queryBook(books, "-1", BY_CATEGORY);
-        t2 = std::chrono::system_clock::now();
-        calTime(t1, t2);
-    }
-
-    std::cout << std::endl;
-    for (int i = 0; i < 50; i++)
-    {
-        std::vector<Book> books;
-        t1 = std::chrono::system_clock::now();
-        lib.queryBook(books, "qwerqwrqwrqw", BY_TITLE);
-        t2 = std::chrono::system_clock::now();
-        calTime(t1, t2);
-    }*/
+    //t1 = std::chrono::system_clock::now();
+    //lib->storeBooks("Dataset/addList_1t.dat");
+    //t2 = std::chrono::system_clock::now();
+    //calTime(t1, t2);
 
     //std::cout << std::endl;
     //for (int i = 0; i < 50; i++)
     //{
     //    std::vector<Book> books;
     //    t1 = std::chrono::system_clock::now();
-    //    lib.queryBook(books, -1);
+    //    lib->queryBook(books, -2, -1);
+    //    t2 = std::chrono::system_clock::now();
+    //    calTime(t1, t2);
+    //}
+    //std::cout << std::endl;
+    //for (int i = 0; i < 50; i++)
+    //{
+    //    std::vector<Book> books;
+    //    t1 = std::chrono::system_clock::now();
+    //    lib->queryBook(books, "-1", BY_CATEGORY);
+    //    t2 = std::chrono::system_clock::now();
+    //    calTime(t1, t2);
+    //}
+    //std::cout << std::endl;
+    //for (int i = 0; i < 50; i++)
+    //{
+    //    std::vector<Book> books;
+    //    t1 = std::chrono::system_clock::now();
+    //    lib->queryBook(books, "qwerqwrqwrqw", BY_TITLE);
+    //    t2 = std::chrono::system_clock::now();
+    //    calTime(t1, t2);
+    //}
+    //std::cout << std::endl;
+    //for (int i = 0; i < 50; i++)
+    //{
+    //    std::vector<Book> books;
+    //    t1 = std::chrono::system_clock::now();
+    //    lib->queryBook(books, -1);
     //    t2 = std::chrono::system_clock::now();
     //    calTime(t1, t2);
     //}
