@@ -104,4 +104,5 @@ int main()
     //}
 
     lib->run();
+    delete lib;
 }
