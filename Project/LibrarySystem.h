@@ -58,7 +58,7 @@ private:
 	BpTree hashBpTree;
 
 	int findSameBook(Book& _book);
-	void showInfo(std::vector<Book>& books);
+	int showInfo(std::vector<Book>& books);
 };
 
 #endif // !_LIBRARY_SYSTEM_H

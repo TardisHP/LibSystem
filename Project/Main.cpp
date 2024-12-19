@@ -17,60 +17,80 @@ void calTime(std::chrono::system_clock::time_point t1, std::chrono::system_clock
 
 int main()
 {
+    
+
     auto t1 = std::chrono::system_clock::now();
     LibrarySystem lib;
     auto t2 = std::chrono::system_clock::now();
     calTime(t1, t2);
 
     //t1 = std::chrono::system_clock::now();
-    //lib.storeBooks("Dataset/addList copy.dat");
+    //lib.storeBooks("Dataset/addList_1t.dat");
     //t2 = std::chrono::system_clock::now();
     //calTime(t1, t2);
 
-    //std::vector<Book> books;
-    //t1 = std::chrono::system_clock::now();
-    //lib.queryBook(books, -2, -1);
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
+    std::cout << std::endl;
+    for (int i = 0; i < 1; i++)
+    {
+        std::vector<Book> books;
+        t1 = std::chrono::system_clock::now();
+        lib.queryBook(books, -2, -1);
+        t2 = std::chrono::system_clock::now();
+        calTime(t1, t2);
+    }
 
-    //std::vector<Book> books;
-    //t1 = std::chrono::system_clock::now();
-    //lib.queryBook(books, "-1", 0);
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
+    std::cout << std::endl;
+    for (int i = 0; i < 1; i++)
+    {
+        std::vector<Book> books;
+        t1 = std::chrono::system_clock::now();
+        lib.queryBook(books, "-1", BY_CATEGORY);
+        t2 = std::chrono::system_clock::now();
+        calTime(t1, t2);
+    }
 
-    //std::vector<Book> books;
-    //t1 = std::chrono::system_clock::now();
-    //lib.queryBook(books, "c++", BY_TITLE);
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
+    std::cout << std::endl;
+    for (int i = 0; i < 5; i++)
+    {
+        std::vector<Book> books;
+        t1 = std::chrono::system_clock::now();
+        lib.queryBook(books, "qwerqwrqwrqw", BY_TITLE);
+        t2 = std::chrono::system_clock::now();
+        calTime(t1, t2);
+    }
 
-    //std::vector<int> ints(10000000);
-    //t1 = std::chrono::system_clock::now();
-    //for (int i : ints)
+    std::cout << std::endl;
+    for (int i = 0; i < 15; i++)
+    {
+        std::vector<Book> books;
+        t1 = std::chrono::system_clock::now();
+        lib.queryBook(books, -1);
+        t2 = std::chrono::system_clock::now();
+        calTime(t1, t2);
+    }
+
+    //std::cout << std::endl;
+    //for (int i = 0; i < 15; i++)
     //{
-    //    i++;
+    //    char str[50] = "test add";
+    //    str[8] = i + '0';
+    //    str[9] = '\0';
+    //    Book book(str, "I231.9", "cuc", "cuc", 2003, 19.8);
+    //    book.stock = 5;
+    //    t1 = std::chrono::system_clock::now();
+    //    lib.storeBook(book);
+    //    t2 = std::chrono::system_clock::now();
+    //    calTime(t1, t2);
     //}
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
 
-    //std::vector<Book> books;
-    //t1 = std::chrono::system_clock::now();
-    //lib.queryBook(books, -1);
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
-
-    //Book book("chinese history", "I231.9", "cuc", "cuc", 2003, 19.8);
-    //book.stock = 5;
-    //t1 = std::chrono::system_clock::now();
-    //lib.storeBook(book);
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
-
-    //t1 = std::chrono::system_clock::now();
-    //lib.removeBook(52100);
-    //t2 = std::chrono::system_clock::now();
-    //calTime(t1, t2);
+    //std::cout << std::endl;
+    //for (int i = 1; i < 6; i++)
+    //{
+    //    t1 = std::chrono::system_clock::now();
+    //    lib.removeBook(pow(12, i));
+    //    t2 = std::chrono::system_clock::now();
+    //    calTime(t1, t2);
+    //}
 
     lib.run();
 }

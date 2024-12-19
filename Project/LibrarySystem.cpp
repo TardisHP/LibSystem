@@ -15,6 +15,8 @@
 
 inline void eatline() { while (std::cin.get() != '\n') continue; }
 
+static Book queryIterBooks[MAX_LEAF];
+
 LibrarySystem::LibrarySystem(std::string bookTreeFile, std::string bookTreeNodeFile, 
 	std::string borrowTreeFile, std::string borrowTreeNodeFile,
 	std::string cardTreeFile, std::string cardTreeNodeFile,
@@ -77,6 +79,7 @@ void LibrarySystem::run()
 			std::cout << "Enter the book stock:" << std::endl;
 			std::cout << ">> ";
 			std::cin >> book.stock;
+			eatline();
 			status = storeBook(book);
 			break;
 		}
@@ -89,6 +92,7 @@ void LibrarySystem::run()
 			std::cout << "Enter the delta stock:" << std::endl;
 			std::cout << ">> ";
 			std::cin >> stock;
+			eatline();
 			status = incBookStock(id, stock);
 			break;
 		}
@@ -98,6 +102,7 @@ void LibrarySystem::run()
 			std::cout << "Enter the book id:" << std::endl;
 			std::cout << ">> ";
 			std::cin >> id;
+			eatline();
 			status = removeBook(id);
 			break;
 		}
@@ -445,7 +450,7 @@ int LibrarySystem::storeBooks(std::string path)
 	return 100;
 }
 
-void LibrarySystem::showInfo(std::vector<Book>& books)
+int LibrarySystem::showInfo(std::vector<Book>& books)
 {
 	if (books.empty())
 		std::cout << "can NOT find!" << std::endl;
@@ -459,8 +464,24 @@ void LibrarySystem::showInfo(std::vector<Book>& books)
 				<< book.publisher << std::setw(10) << book.publish_year << std::setw(10) << book.price << std::setw(10) << book.stock << std::endl;
 		}
 		std::cout << std::endl;
+		// ÅÐ¶ÏÊÇ·ñ¼ÌÐøÏÔÊ¾
+		if (books.size() < 20)
+		{
+			books.clear();
+			return 1;
+		}
 		books.clear();
+		std::cout << "input 'q' to quit, else to continue" << std::endl;
+		std::cout << ">> ";
+		char c;
+		std::cin >> c;
+		eatline();
+		if (c == 'q')
+		{
+			return 0;
+		}
 	}
+	return 1;
 }
 
 int LibrarySystem::queryBook(std::vector<Book>& books, int k)
@@ -484,6 +505,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, int k)
 
 int LibrarySystem::queryBook(std::vector<Book>& books, int year_l, int year_r)
 {
+	Book book;
 	std::fstream fin;
 	std::vector<unsigned long> poses;
 	unsigned long p = bookBpTree.head;
@@ -494,24 +516,17 @@ int LibrarySystem::queryBook(std::vector<Book>& books, int year_l, int year_r)
 		int num = 0;
 		while (!poses.empty())
 		{
-			Book book;
-			for (unsigned long pos : poses)
+			fin.seekg(poses[0]);
+			fin.read((char*)&queryIterBooks, (sizeof book) * poses.size());
+			for (int i = 0; i < poses.size(); i++)
 			{
-				fin.seekg(pos);
-				fin.read((char*)&book, sizeof book);
-				if (book.publish_year >= year_l && book.publish_year <= year_r)
+				if (queryIterBooks[i].publish_year >= year_l && queryIterBooks[i].publish_year <= year_r)
 				{
-					books.push_back(book);
+					books.push_back(queryIterBooks[i]);
 					num++;
 					if (num % 20 == 0 && num > 0)
 					{
-						showInfo(books);
-						std::cout << "input 'q' to quit, else to continue" << std::endl;
-						std::cout << ">> ";
-						char c;
-						std::cin >> c;
-						eatline();
-						if (c == 'q')
+						if (!showInfo(books))
 						{
 							fin.close();
 							return 200;
@@ -529,6 +544,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, int year_l, int year_r)
 
 int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float price_r)
 {
+	Book book;
 	std::fstream fin;
 	std::vector<unsigned long> poses;
 	unsigned long p = bookBpTree.head;
@@ -539,24 +555,17 @@ int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float pric
 		int num = 0;
 		while (!poses.empty())
 		{
-			Book book;
-			for (unsigned long pos : poses)
+			fin.seekg(poses[0]);
+			fin.read((char*)&queryIterBooks, (sizeof book) * poses.size());
+			for (int i = 0; i < poses.size(); i++)
 			{
-				fin.seekg(pos);
-				fin.read((char*)&book, sizeof book);
-				if (book.price >= price_l && book.price <= price_r)
+				if (queryIterBooks[i].price >= price_l && queryIterBooks[i].price <= price_r)
 				{
-					books.push_back(book);
+					books.push_back(queryIterBooks[i]);
 					num++;
 					if (num % 20 == 0 && num > 0)
 					{
-						showInfo(books);
-						std::cout << "input 'q' to quit, else to continue" << std::endl;
-						std::cout << ">> ";
-						char c;
-						std::cin >> c;
-						eatline();
-						if (c == 'q')
+						if (!showInfo(books))
 						{
 							fin.close();
 							return 200;
@@ -574,18 +583,56 @@ int LibrarySystem::queryBook(std::vector<Book>& books, float price_l, float pric
 
 int LibrarySystem::queryBook(std::vector<Book>& books, const char* str, QUERY_TYPE type)
 {
+	Book book;
 	std::fstream fin;
 	std::vector<unsigned long> poses;
 	unsigned long p = bookBpTree.head;
 	poses = bookBpTree.iter(p);
+	
 	fin.open(bookDatasetFile, std::ios::in | std::ios::binary);
 	if (fin.is_open())
 	{
 		int num = 0;
 		while (!poses.empty())
 		{
-			Book book;
-			for (unsigned long pos : poses)
+			fin.seekg(poses[0]);
+			fin.read((char*)&queryIterBooks, (sizeof book)*poses.size());
+			for (int i = 0; i < poses.size(); i++)
+			{
+				switch (type)
+				{
+				case BY_CATEGORY:
+					if (std::strcmp(queryIterBooks[i].category, str) != 0)
+						continue;
+					break;
+				case BY_TITLE:
+					if (std::strstr(queryIterBooks[i].title, str) == nullptr)
+						continue;
+					break;
+				case BY_PUBLISHER:
+					if (std::strstr(queryIterBooks[i].publisher, str) == nullptr)
+						continue;
+					break;
+				case BY_AUTHOR:
+					if (std::strstr(queryIterBooks[i].author, str) == nullptr)
+						continue;
+					break;
+				default:
+					break;
+				}
+				books.push_back(queryIterBooks[i]);
+				num++;
+				if (num % 20 == 0 && num > 0)
+				{
+					if (!showInfo(books))
+					{
+						fin.close();
+						return 200;
+					}
+				}
+			}
+
+			/*for (unsigned long pos : poses)
 			{
 				fin.seekg(pos);
 				fin.read((char*)&book, sizeof book);
@@ -626,7 +673,7 @@ int LibrarySystem::queryBook(std::vector<Book>& books, const char* str, QUERY_TY
 						return 200;
 					}
 				}
-			}
+			}*/
 			poses = bookBpTree.iter(p);
 		}
 		fin.close();
