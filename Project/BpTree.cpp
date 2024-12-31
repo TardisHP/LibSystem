@@ -66,8 +66,6 @@ void BpTree::serialize(unsigned long point, BpTreeNode& _node)
     std::memcpy(buffer + offset, (char*)&_node.pre, sizeof(unsigned long));
     offset += sizeof(unsigned long);
     std::memcpy(buffer + offset, (char*)&_node.next, sizeof(unsigned long));
-    //offset += sizeof(unsigned long);
-    //std::memcpy(buffer + offset, (char*)&_node.parent, sizeof(unsigned long));
     treeNodeFile.write(buffer, PAGE_SIZE);
 }
 
@@ -103,7 +101,6 @@ void BpTree::deserialize(unsigned long point)
     offset += sizeof(unsigned long);
     std::memcpy(&node.next, buffer + offset, sizeof(unsigned long));
     offset += sizeof(unsigned long);
-    //std::memcpy(&node.parent, buffer + offset, sizeof(unsigned long));
 }
 
 // 找到索引所在的叶节点的文件偏移
@@ -172,7 +169,6 @@ void BpTree::updateInnerNode(unsigned long p, int it, int k)
         return;
     if (it >= node.keycount)
     {
-        //unsigned long parent = node.parent;
         unsigned long parent = parentStackKey.back();
         parentStackKey.pop_back();
         deserialize(parent);
@@ -198,16 +194,7 @@ void BpTree::splitNode(unsigned long p)
         newNode.keys.push_back(node.keys[i]);
         newNode.pointers.push_back(node.pointers[i]);
         newNode.keycount++;
-        //if (!node.isLeaf)
-        //{
-        //    unsigned long tmp = node.pointers[i];
-        //    deserialize(node.pointers[i]);
-        //    node.parent = newPos;
-        //    serialize(tmp, node);
-        //    deserialize(p);
-        //}
     }
-    //deserialize(p);
     node.keys.resize(mid);
     node.pointers.resize(mid);
     node.keycount = mid;
@@ -220,7 +207,6 @@ void BpTree::splitNode(unsigned long p)
         newNode.pre = p;
     }
 
-    //if (node.parent == -1)
     if (parentStackNode.empty())
     {
         BpTreeNode newRoot = BpTreeNode(false);
@@ -230,8 +216,6 @@ void BpTree::splitNode(unsigned long p)
         newRoot.pointers.push_back(p);
         newRoot.pointers.push_back(newPos);
         newRoot.keycount = 2;
-        //node.parent = newRootPos;
-        //newNode.parent = newRootPos;
         root = newRootPos;
         serialize(p, node);
         serialize(newPos, newNode);
@@ -249,9 +233,6 @@ void BpTree::splitNode(unsigned long p)
 void BpTree::insertToNode(unsigned long p, unsigned long leafp, unsigned long newLeafp, int k)
 {
     parentStackNode.pop_back();
-    //deserialize(newLeafp);
-    //node.parent = p;
-    //serialize(newLeafp, node);
     deserialize(p);
     int it = std::lower_bound(node.keys.begin(), node.keys.end(), k) - node.keys.begin();
     node.keys.insert(node.keys.begin() + it, k);
@@ -435,22 +416,6 @@ void BpTree::updateInnerNode(unsigned long p, int k)
     }
     parentStackKey.clear();
 }
-
-//void BpTree::show()
-//{
-//    unsigned long p = head;
-//    while (p != -1)
-//    {
-//        deserialize(p);
-//        for (int i = 0; i < node.keycount; i++)
-//        {
-//            std::cout << node.keys[i] << " ";
-//        }
-//        std::cout << "| ";
-//        p = node.next;
-//    }
-//    std::cout << std::endl;
-//}
 
 unsigned long BpTree::iter(Pair& pair)
 {

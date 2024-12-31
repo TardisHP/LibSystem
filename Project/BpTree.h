@@ -37,7 +37,6 @@ public:
     unsigned long findPos(int k);                           // 查找
     unsigned long iter(Pair& pair);                         // 遍历
     std::vector<unsigned long>& iter(unsigned long& p);     // 遍历
-    // void show();
 private:
     std::vector<unsigned long> parentStackKey;         // 父节点栈，用于更新键值
     std::vector<unsigned long> parentStackNode;        // 父节点栈，用于遍历子节点
